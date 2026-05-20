@@ -5,6 +5,7 @@ const API_BASE = '/api'
 async function request(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
     cache: 'no-store',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
     ...options,
   })
@@ -29,20 +30,21 @@ export async function getPosts({ userId, sortBy = 'createdAt', direction = 'desc
 export async function getPostById(postId, currentUserId) {
   const params = new URLSearchParams()
   if (currentUserId != null) params.set('currentUserId', currentUserId)
-  return request(`/posts/${postId}?${params.toString()}`)
+  const qs = params.toString()
+  return request(`/posts/${postId}${qs ? `?${qs}` : ''}`)
 }
 
 export async function createPost(data) {
-  return request('/posts', { method: 'POST', body: JSON.stringify(data) })
+  return request(`/posts`, { method: 'POST', body: JSON.stringify(data) })
 }
 
 // -------- LIKES --------
-export async function likePost(postId, userId) {
-  return request(`/posts/${postId}/like?userId=${userId}`, { method: 'POST' })
+export async function likePost(postId) {
+  return request(`/posts/${postId}/like`, { method: 'POST' })
 }
 
-export async function unlikePost(postId, userId) {
-  return request(`/posts/${postId}/like?userId=${userId}`, { method: 'DELETE' })
+export async function unlikePost(postId) {
+  return request(`/posts/${postId}/like`, { method: 'DELETE' })
 }
 
 // -------- COMMENTS --------
@@ -50,24 +52,32 @@ export async function getComments(postId) {
   return request(`/posts/${postId}/comments`)
 }
 
-export async function createComment(postId, { userId, content }) {
+export async function createComment(postId, { content }) {
   return request(`/posts/${postId}/comments`, {
     method: 'POST',
-    body: JSON.stringify({ userId, content }),
+    body: JSON.stringify({ content }),
   })
 }
 
-export async function deleteComment(commentId, userId) {
-  return request(`/comments/${commentId}?userId=${userId}`, { method: 'DELETE' })
+export async function deleteComment(commentId) {
+  return request(`/comments/${commentId}`, { method: 'DELETE' })
 }
 
 // -------- USERS / AUTH --------
 export async function registerUser(data) {
-  return request('/auth/register', { method: 'POST', body: JSON.stringify(data) })
+  return request(`/auth/register`, { method: 'POST', body: JSON.stringify(data) })
 }
 
 export async function loginUser(data) {
-  return request('/auth/login', { method: 'POST', body: JSON.stringify(data) })
+  return request(`/auth/login`, { method: 'POST', body: JSON.stringify(data) })
+}
+
+export async function logoutUser() {
+  return request(`/auth/logout`, { method: 'POST' })
+}
+
+export async function getCurrentUserFromSession() {
+  return request(`/auth/me`)
 }
 
 export async function getUserByUsername(username) {

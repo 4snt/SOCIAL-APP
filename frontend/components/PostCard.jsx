@@ -34,8 +34,8 @@ export default function PostCard({ post }) {
     setLikes((n) => n + (willLike ? 1 : -1))
     try {
       const { likes: serverLikes } = willLike
-        ? await likePost(post.id, user.id)
-        : await unlikePost(post.id, user.id)
+        ? await likePost(post.id)
+        : await unlikePost(post.id)
       setLikes(serverLikes)
     } catch {
       setLiked(!willLike)
@@ -52,7 +52,7 @@ export default function PostCard({ post }) {
 
     setSubmitting(true)
     try {
-      const created = await createComment(post.id, { userId: user.id, content: trimmed })
+      const created = await createComment(post.id, { content: trimmed })
       setComments((prev) => [...(prev || []), created])
       setCommentCount((n) => n + 1)
       setText('')

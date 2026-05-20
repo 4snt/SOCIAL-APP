@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
@@ -39,6 +40,9 @@ class ApiEndpointsTest {
     @Autowired
     private LikeRepository likeRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     private User gabriel;
     private User maria;
     private Post gabrielPost;
@@ -55,13 +59,13 @@ class ApiEndpointsTest {
         gabriel = userRepository.save(User.builder()
                 .username("gabriel")
                 .email("gabriel@email.com")
-                .password("123")
+                .password(passwordEncoder.encode("123"))
                 .build());
 
         maria = userRepository.save(User.builder()
                 .username("maria")
                 .email("maria@email.com")
-                .password("123")
+                .password(passwordEncoder.encode("123"))
                 .build());
 
         gabrielPost = postRepository.save(Post.builder()
@@ -77,6 +81,19 @@ class ApiEndpointsTest {
                 .description("Post da Maria")
                 .createdAt(LocalDateTime.now())
                 .build());
+    }
+
+    private String loginSession(String email, String password) {
+        return given()
+                .contentType(ContentType.JSON)
+                .body(Map.of("email", email, "password", password))
+        .when()
+                .post("/api/auth/login")
+        .then()
+                .statusCode(200)
+                .body("success", equalTo(true))
+                .extract()
+                .cookie("JSESSIONID");
     }
 
     @Test
@@ -158,10 +175,11 @@ class ApiEndpointsTest {
 
     @Test
     void shouldCreatePost() {
+        String session = loginSession("gabriel@email.com", "123");
         given()
+                .cookie("JSESSIONID", session)
                 .contentType(ContentType.JSON)
                 .body(Map.of(
-                        "userId", gabriel.getId(),
                         "imageUrl", "https://example.com/new-post.jpg",
                         "description", "Novo post de teste"
                 ))
@@ -178,8 +196,9 @@ class ApiEndpointsTest {
 
     @Test
     void shouldLikePost() {
+        String session = loginSession("maria@email.com", "123");
         given()
-                .queryParam("userId", maria.getId())
+                .cookie("JSESSIONID", session)
         .when()
                 .post("/api/posts/{postId}/like", gabrielPost.getId())
         .then()
@@ -189,15 +208,16 @@ class ApiEndpointsTest {
 
     @Test
     void shouldUnlikePost() {
+        String session = loginSession("maria@email.com", "123");
         given()
-                .queryParam("userId", maria.getId())
+                .cookie("JSESSIONID", session)
         .when()
                 .post("/api/posts/{postId}/like", gabrielPost.getId())
         .then()
                 .statusCode(200);
 
         given()
-                .queryParam("userId", maria.getId())
+                .cookie("JSESSIONID", session)
         .when()
                 .delete("/api/posts/{postId}/like", gabrielPost.getId())
         .then()

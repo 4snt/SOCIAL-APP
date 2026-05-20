@@ -33,8 +33,8 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponse create(Long postId, CreateCommentRequest request) {
-        User user = userRepository.findById(request.userId())
+    public CommentResponse create(Long postId, CreateCommentRequest request, Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post não encontrado"));

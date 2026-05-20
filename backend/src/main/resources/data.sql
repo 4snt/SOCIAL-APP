@@ -4,19 +4,26 @@
 -- =============================================================
 
 -- ----------------------------- USERS -----------------------------
-INSERT INTO users (id, username, email, password, avatar_url, bio) VALUES
-(1, 'gabriel',       'gabriel@email.com',  '123', 'https://api.dicebear.com/7.x/avataaars/svg?seed=gabriel',  'Curtindo a vida e tomando café ☕'),
-(2, 'maria',         'maria@email.com',    '123', 'https://api.dicebear.com/7.x/avataaars/svg?seed=maria',    'Fotógrafa amadora • SP'),
-(3, 'joao_fit',      'joao@email.com',     '123', 'https://api.dicebear.com/7.x/avataaars/svg?seed=joao',     'Personal trainer 💪 | dieta + treino'),
-(4, 'lara.viagens',  'lara@email.com',     '123', 'https://api.dicebear.com/7.x/avataaars/svg?seed=lara',     '✈️ 23 países e contando'),
-(5, 'chef_pedro',    'pedro@email.com',    '123', 'https://api.dicebear.com/7.x/avataaars/svg?seed=pedro',    'Chef de cozinha 🍝 receitas simples'),
-(6, 'ana_arte',      'ana@email.com',      '123', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ana',      'Ilustradora • aceito comissões'),
-(7, 'ricardo_dev',   'ricardo@email.com',  '123', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ricardo',  'Dev fullstack • Java + React'),
-(8, 'julia_pets',    'julia@email.com',    '123', 'https://api.dicebear.com/7.x/avataaars/svg?seed=julia',    'Mãe de 3 cachorros 🐶')
+-- Senha de exemplo: 123 (BCrypt). dtype: USER | STUDENT | UNIVERSITY | ADMIN
+INSERT INTO users (id, dtype, username, email, password, avatar_url, bio, student_name, course, university_name, admin_name) VALUES
+(1, 'USER', 'gabriel',      'gabriel@email.com',  '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=gabriel',  'Curtindo a vida e tomando café ☕', NULL, NULL, NULL, NULL),
+(2, 'USER', 'maria',        'maria@email.com',    '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=maria',    'Fotógrafa amadora • SP', NULL, NULL, NULL, NULL),
+(3, 'STUDENT', 'joao_fit',  'joao@email.com',     '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=joao',     'Personal trainer 💪 | dieta + treino', 'João Silva', 'Educação Física', NULL, NULL),
+(4, 'UNIVERSITY', 'lara.viagens', 'lara@email.com', '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=lara', '✈️ 23 países e contando', NULL, NULL, 'USP', NULL),
+(5, 'USER', 'chef_pedro',   'pedro@email.com',    '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=pedro',    'Chef de cozinha 🍝 receitas simples', NULL, NULL, NULL, NULL),
+(6, 'USER', 'ana_arte',     'ana@email.com',      '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ana',      'Ilustradora • aceito comissões', NULL, NULL, NULL, NULL),
+(7, 'USER', 'ricardo_dev',  'ricardo@email.com',  '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ricardo',  'Dev fullstack • Java + React', NULL, NULL, NULL, NULL),
+(8, 'USER', 'julia_pets',   'julia@email.com',    '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=julia',    'Mãe de 3 cachorros 🐶', NULL, NULL, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET
-    username   = EXCLUDED.username,
-    avatar_url = EXCLUDED.avatar_url,
-    bio        = EXCLUDED.bio;
+    dtype           = EXCLUDED.dtype,
+    username        = EXCLUDED.username,
+    password        = EXCLUDED.password,
+    avatar_url      = EXCLUDED.avatar_url,
+    bio             = EXCLUDED.bio,
+    student_name    = EXCLUDED.student_name,
+    course          = EXCLUDED.course,
+    university_name = EXCLUDED.university_name,
+    admin_name      = EXCLUDED.admin_name;
 
 -- ----------------------------- POSTS -----------------------------
 INSERT INTO posts (id, user_id, image_url, description, created_at) VALUES

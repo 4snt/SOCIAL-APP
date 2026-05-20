@@ -28,7 +28,6 @@ export default function PostForm({ onCreated }) {
     setSubmitting(true)
     try {
       const created = await createPost({
-        userId: currentUser.id,
         imageUrl: imageUrl.trim(),
         description: description.trim(),
       })

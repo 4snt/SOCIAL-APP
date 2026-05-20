@@ -29,8 +29,8 @@ public class PostService {
         this.commentRepository = commentRepository;
     }
 
-    public PostResponse create(CreatePostRequest request) {
-        User user = userRepository.findById(request.userId())
+    public PostResponse create(CreatePostRequest request, Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         Post saved = postRepository.save(Post.builder()
                 .user(user)
@@ -38,7 +38,7 @@ public class PostService {
                 .description(request.description())
                 .createdAt(LocalDateTime.now())
                 .build());
-        return toResponse(saved, request.userId());
+        return toResponse(saved, userId);
     }
 
     public List<PostResponse> findPosts(Long userId, String sortBy, String direction, Long currentUserId) {

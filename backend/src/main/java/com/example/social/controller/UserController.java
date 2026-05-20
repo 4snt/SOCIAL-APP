@@ -2,48 +2,46 @@ package com.example.social.controller;
 
 import com.example.social.dto.UserResponse;
 import com.example.social.entity.User;
-import com.example.social.repository.UserRepository;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-import java.util.Optional;
+import com.example.social.service.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = "*")
+@RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class UserController {
-    private final UserRepository userRepository;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping("/api/auth/register")
+    @PostMapping("/auth/register")
     public UserResponse register(@RequestBody User user) {
-        User saved = userRepository.save(user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User saved = userService.createUser(user);
         return toResponse(saved);
     }
 
-    @PostMapping("/api/auth/login")
-    public Map<String, Object> login(@RequestBody Map<String, String> credentials) {
-        String email = credentials.get("email");
-        String password = credentials.get("password");
-        Optional<User> user = userRepository.findByEmail(email);
-        if (user.isPresent() && user.get().getPassword().equals(password)) {
-            return Map.of("success", true, "user", toResponse(user.get()));
-        }
-        return Map.of("success", false, "message", "Credenciais inválidas");
-    }
-
-    @GetMapping("/api/users/{id}")
+    @GetMapping("/users/{id}")
     public UserResponse findById(@PathVariable Long id) {
-        return userRepository.findById(id)
+        return userService.findById(id)
                 .map(this::toResponse)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 
-    @GetMapping("/api/users/by-username/{username}")
+    @GetMapping("/users/by-username/{username}")
     public UserResponse findByUsername(@PathVariable String username) {
-        return userRepository.findByUsername(username)
+        return userService.findByUsername(username)
                 .map(this::toResponse)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }

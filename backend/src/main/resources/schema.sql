@@ -1,0 +1,10 @@
+-- Migração idempotente para herança SINGLE_TABLE (banco já existente sem dtype)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS dtype VARCHAR(20);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS admin_name VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS student_name VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS course VARCHAR(255);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS university_name VARCHAR(255);
+
+UPDATE users SET dtype = 'USER' WHERE dtype IS NULL;
+
+ALTER TABLE users ALTER COLUMN dtype SET NOT NULL;
