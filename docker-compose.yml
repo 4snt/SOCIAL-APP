@@ -2,14 +2,14 @@ version: '3.9'
 
 services:
   db:
-    image: postgres:16-alpine
+    image: 'postgres:16-alpine'
     container_name: social-db
     environment:
       POSTGRES_DB: socialdb
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: abc123
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - 'postgres_data:/var/lib/postgresql/data'
 
   backend:
     build: ./backend
@@ -17,7 +17,7 @@ services:
     depends_on:
       - db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/socialdb
+      SPRING_DATASOURCE_URL: 'jdbc:postgresql://db:5432/socialdb'
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: abc123
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -28,9 +28,9 @@ services:
     depends_on:
       - backend
     environment:
-      NEXT_PUBLIC_API_URL: http://backend:8080
+      NEXT_PUBLIC_API_URL: 'http://backend:8080'
     ports:
-      - "25565:3000"
+      - '6003:3000'
 
 volumes:
-  postgres_data:
+  postgres_data: null
