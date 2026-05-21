@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./mvnw compile *)",
+      "Read(//run/host/opt/android-studio/**)",
+      "Read(//run/host/opt/android-studio/jbr/**)",
+      "Read(//run/host/usr/lib/jvm/java-17-openjdk-amd64/**)"
+    ]
+  }
+}
