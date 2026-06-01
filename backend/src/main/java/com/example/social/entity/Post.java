@@ -20,4 +20,8 @@ public class Post {
     private String description;
     @Column(nullable = false)
     private LocalDateTime createdAt;
+    @Column(nullable = false)
+    private String status;
+
+
 }

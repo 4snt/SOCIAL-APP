@@ -2,6 +2,7 @@ package com.example.social.dto;
 
 import java.time.LocalDateTime;
 
+
 public record PostResponse(
         Long id,
         Long userId,
@@ -12,5 +13,7 @@ public record PostResponse(
         long likeCount,
         long commentCount,
         boolean likedByMe,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String status
+
 ) {}

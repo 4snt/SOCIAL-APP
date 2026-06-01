@@ -8,6 +8,7 @@ import TimeAgo from './TimeAgo'
 import CommentList from './CommentList'
 import { createComment, getComments, likePost, unlikePost } from '../lib/api'
 import { getCurrentUser } from './AuthGate'
+import StatusBadge from './StatusBadge'
 
 export default function PostCard({ post }) {
   const router = useRouter()
@@ -75,6 +76,9 @@ export default function PostCard({ post }) {
           <TimeAgo date={post.createdAt} />
         </div>
       </header>
+      <div className="px-4 pb-2 pt-3">
+        <StatusBadge status={post.status} />
+      </div>
 
       <Link href={`/post/${post.id}`} className="block bg-neutral-100">
         <img

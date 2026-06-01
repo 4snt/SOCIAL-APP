@@ -8,3 +8,6 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS university_name VARCHAR(255);
 UPDATE users SET dtype = 'USER' WHERE dtype IS NULL;
 
 ALTER TABLE users ALTER COLUMN dtype SET NOT NULL;
+
+-- Adiciona coluna status na tabela posts
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'PENDENTE';

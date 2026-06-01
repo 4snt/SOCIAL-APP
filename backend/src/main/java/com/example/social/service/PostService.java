@@ -37,6 +37,7 @@ public class PostService {
                 .imageUrl(request.imageUrl())
                 .description(request.description())
                 .createdAt(LocalDateTime.now())
+                .status("PENDENTE")
                 .build());
         return toResponse(saved, userId);
     }
@@ -80,7 +81,8 @@ public class PostService {
                 likeRepository.countByPostId(post.getId()),
                 commentRepository.countByPostId(post.getId()),
                 liked,
-                post.getCreatedAt()
+                post.getCreatedAt(),
+                post.getStatus()
         );
     }
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Avatar from './Avatar'
 import { createPost } from '../lib/api'
@@ -8,18 +8,20 @@ import { getCurrentUser } from './AuthGate'
 
 export default function PostForm({ onCreated }) {
   const router = useRouter()
+  const [user, setUser] = useState(null)
   const [imageUrl, setImageUrl] = useState('')
   const [description, setDescription] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  const user = typeof window !== 'undefined' ? getCurrentUser() : null
+  useEffect(() => {
+    setUser(getCurrentUser())
+  }, [])
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-    const currentUser = getCurrentUser()
-    if (!currentUser?.id) return router.push('/login')
+    if (!user?.id) return router.push('/login')
     if (!imageUrl.trim() || !description.trim()) {
       setError('Imagem e descrição são obrigatórias.')
       return
