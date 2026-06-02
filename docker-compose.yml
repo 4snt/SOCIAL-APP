@@ -10,9 +10,8 @@ services:
       POSTGRES_PASSWORD: abc123
     volumes:
       - 'postgres_data:/var/lib/postgresql/data'
-    
-    ports:
-      - '5432:5432'
+    expose:
+      - '5432'
 
   backend:
     build: ./backend
@@ -24,8 +23,8 @@ services:
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: abc123
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-    ports:
-      - '8080:8080'
+    expose:
+      - '8080'
 
   frontend:
     build: ./frontend
