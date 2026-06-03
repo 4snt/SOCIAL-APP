@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 // Wrapper para ações que exigem login: se não houver usuário no localStorage,
@@ -14,7 +15,25 @@ export function getCurrentUser() {
   }
 }
 
+// Hook que redireciona se não autenticado (chamar no corpo do componente, não em useEffect!)
 export function useRequireAuth() {
+  const router = useRouter()
+  const [user, setUser] = useState(null)
+  
+  useEffect(() => {
+    const currentUser = getCurrentUser()
+    if (!currentUser) {
+      router.push('/login')
+    } else {
+      setUser(currentUser)
+    }
+  }, [router])
+
+  return user
+}
+
+// Versão antiga (manter para ações)
+export function useRequireAuthCallback() {
   const router = useRouter()
   return (callback) => {
     const user = getCurrentUser()

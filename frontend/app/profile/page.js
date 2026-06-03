@@ -1,28 +1,17 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Avatar from '../../components/Avatar'
 import PostCard from '../../components/PostCard'
 import PostForm from '../../components/PostForm'
 import EmptyState from '../../components/EmptyState'
-import { getCurrentUser } from '../../components/AuthGate'
+import { useAuthRedirect } from '../../hooks/useAuthRedirect'
 import { getPosts } from '../../lib/api'
 
 export default function Profile() {
-  const router = useRouter()
-  const [user, setUser] = useState(null)
+  const { user, loading: authLoading } = useAuthRedirect()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const u = getCurrentUser()
-    if (!u) {
-      router.push('/login')
-      return
-    }
-    setUser(u)
-  }, [router])
 
   useEffect(() => {
     if (!user?.id) return
@@ -35,6 +24,7 @@ export default function Profile() {
     return () => { cancelled = true }
   }, [user?.id])
 
+  if (authLoading) return <div className="flex items-center justify-center h-screen">Carregando...</div>
   if (!user) return null
 
   return (

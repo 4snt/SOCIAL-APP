@@ -77,7 +77,7 @@ Query params (todos opcionais):
     "userId": 4,
     "username": "lara.viagens",
     "avatarUrl": "https://...",
-    "imageUrl": "https://images.unsplash.com/...",
+    "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRg...",
     "description": "Praia perfeita pra começar o dia 🌊",
     "likeCount": 7,
     "commentCount": 4,
@@ -89,12 +89,46 @@ Query params (todos opcionais):
 
 ### `POST /api/posts`
 
-```json
-// Request
-{ "imageUrl": "https://...", "description": "minha legenda" }
+Cria um novo post com upload de arquivo usando `multipart/form-data`.
 
-// Response 200 — PostResponse (igual ao GET)
+```http
+POST /api/posts HTTP/1.1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="image"; filename="foto.jpg"
+Content-Type: image/jpeg
+
+[binary image data]
+------WebKitFormBoundary
+Content-Disposition: form-data; name="description"
+
+Minha legenda do post
+------WebKitFormBoundary--
 ```
+
+**Validações:**
+- `image`: Obrigatório. Apenas arquivos de imagem (MIME type `image/*`)
+- `description`: Obrigatório. Máximo 1000 caracteres
+
+**Response 200:**
+```json
+{
+  "id": 21,
+  "userId": 1,
+  "username": "gabriel",
+  "avatarUrl": "https://...",
+  "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRg...",
+  "description": "Minha legenda do post",
+  "likeCount": 0,
+  "commentCount": 0,
+  "likedByMe": false,
+  "createdAt": "2026-06-02T15:30:00",
+  "status": "PENDENTE"
+}
+```
+
+**Response 400:** Campo obrigatório faltando ou tipo de arquivo inválido
 
 ---
 
@@ -191,7 +225,13 @@ Wrapper centralizado em [lib/api.js](../frontend/lib/api.js):
 import { getPosts, createPost, likePost, loginUser } from '@/lib/api'
 
 const feed = await getPosts({ sortBy: 'createdAt', direction: 'desc' })
-const created = await createPost({ imageUrl: '...', description: '...' })
+
+// Criar post com upload de arquivo
+const formData = new FormData()
+formData.append('image', fileInputElement.files[0])
+formData.append('description', 'Minha legenda')
+const created = await createPost(formData)
+
 await likePost(created.id)
 ```
 

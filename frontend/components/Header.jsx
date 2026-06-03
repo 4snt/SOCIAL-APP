@@ -2,34 +2,19 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Avatar from './Avatar'
+import { useAuth } from '../context/AuthContext'
 
 export default function Header() {
   const router = useRouter()
-  const [user, setUser] = useState(null)
+  const { user, loading, logout } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
 
-  useEffect(() => {
-    const sync = () => {
-      try {
-        const raw = localStorage.getItem('user')
-        setUser(raw ? JSON.parse(raw) : null)
-      } catch {
-        setUser(null)
-      }
-    }
-    sync()
-    window.addEventListener('storage', sync)
-    return () => window.removeEventListener('storage', sync)
-  }, [])
-
-  const handleLogout = () => {
-    localStorage.removeItem('user')
-    setUser(null)
+  async function handleLogout() {
     setMenuOpen(false)
-    router.push('/')
-    router.refresh()
+    await logout()
+    router.replace('/')
   }
 
   return (
@@ -41,7 +26,9 @@ export default function Header() {
         </Link>
 
         <nav className="flex items-center gap-1">
-          {user ? (
+          {loading ? (
+            <span className="px-3 text-sm text-neutral-400">…</span>
+          ) : user ? (
             <>
               <Link href="/" className="btn-ghost">Feed</Link>
               <div className="relative">

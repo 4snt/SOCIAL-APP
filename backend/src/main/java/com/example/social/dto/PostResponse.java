@@ -1,6 +1,7 @@
 package com.example.social.dto;
 
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 
 public record PostResponse(
@@ -13,6 +14,7 @@ public record PostResponse(
         long likeCount,
         long commentCount,
         boolean likedByMe,
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         LocalDateTime createdAt,
         String status
 

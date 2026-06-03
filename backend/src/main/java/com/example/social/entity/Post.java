@@ -1,9 +1,11 @@
 package com.example.social.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "posts")
@@ -14,8 +16,13 @@ public class Post {
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
     private User user;
-    @Column(nullable = false)
-    private String imageUrl;
+    @JdbcTypeCode(SqlTypes.VARBINARY)
+    @Column(name = "image_data")
+    private byte[] imageData;
+    @Column(length = 100)
+    private String imageFileName;
+    @Column(length = 50)
+    private String imageContentType;
     @Column(nullable = false, length = 1000)
     private String description;
     @Column(nullable = false)

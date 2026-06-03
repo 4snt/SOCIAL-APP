@@ -46,6 +46,12 @@ class ApiEndpointsTest {
     private User gabriel;
     private User maria;
     private Post gabrielPost;
+    
+    private static final byte[] DUMMY_IMAGE_BYTES = new byte[]{
+        (byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, // JPEG magic number
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        (byte) 0xFF, (byte) 0xD9 // JPEG end marker
+    };
 
     @BeforeEach
     void setUp() {
@@ -70,16 +76,22 @@ class ApiEndpointsTest {
 
         gabrielPost = postRepository.save(Post.builder()
                 .user(gabriel)
-                .imageUrl("https://example.com/gabriel.jpg")
+                .imageData(DUMMY_IMAGE_BYTES)
+                .imageFileName("gabriel.jpg")
+                .imageContentType("image/jpeg")
                 .description("Post do Gabriel")
                 .createdAt(LocalDateTime.now())
+                .status("CONCLUIDA")
                 .build());
 
         postRepository.save(Post.builder()
                 .user(maria)
-                .imageUrl("https://example.com/maria.jpg")
+                .imageData(DUMMY_IMAGE_BYTES)
+                .imageFileName("maria.jpg")
+                .imageContentType("image/jpeg")
                 .description("Post da Maria")
                 .createdAt(LocalDateTime.now())
+                .status("CONCLUIDA")
                 .build());
     }
 
@@ -178,18 +190,15 @@ class ApiEndpointsTest {
         String session = loginSession("gabriel@email.com", "123");
         given()
                 .cookie("JSESSIONID", session)
-                .contentType(ContentType.JSON)
-                .body(Map.of(
-                        "imageUrl", "https://example.com/new-post.jpg",
-                        "description", "Novo post de teste"
-                ))
+                .multiPart("image", "test.jpg", DUMMY_IMAGE_BYTES, "image/jpeg")
+                .multiPart("description", "Novo post de teste")
         .when()
                 .post("/api/posts")
         .then()
                 .statusCode(200)
                 .body("id", notNullValue())
                 .body("username", equalTo("gabriel"))
-                .body("imageUrl", equalTo("https://example.com/new-post.jpg"))
+                .body("imageUrl", notNullValue())
                 .body("description", equalTo("Novo post de teste"))
                 .body("likeCount", equalTo(0));
     }

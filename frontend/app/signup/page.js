@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { registerUser } from '../../lib/api'
+import { loginUser, registerUser } from '../../lib/api'
+import { useAuth } from '../../context/AuthContext'
+import { useRedirectIfAuthenticated } from '../../hooks/useRedirectIfAuthenticated'
 
 export default function Signup() {
   const [username, setUsername] = useState('')
@@ -12,22 +14,31 @@ export default function Signup() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const router = useRouter()
+  const { setUserFromLogin } = useAuth()
+  const { ready } = useRedirectIfAuthenticated()
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
     setSubmitting(true)
     try {
-      const user = await registerUser({ username, email, password })
-      localStorage.setItem('user', JSON.stringify(user))
-      router.push('/')
-      router.refresh()
+      await registerUser({ username, email, password })
+      const result = await loginUser({ email, password })
+      if (result.success) {
+        setUserFromLogin(result.user)
+        router.replace('/')
+      } else {
+        setError('Conta criada. Faça login para continuar.')
+        router.replace('/login')
+      }
     } catch {
       setError('Erro ao cadastrar. O email pode já estar em uso.')
     } finally {
       setSubmitting(false)
     }
   }
+
+  if (!ready) return <div className="flex items-center justify-center h-screen">Carregando...</div>
 
   return (
     <main className="mx-auto max-w-md">

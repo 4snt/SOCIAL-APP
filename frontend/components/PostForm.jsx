@@ -1,39 +1,61 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Avatar from './Avatar'
 import { createPost } from '../lib/api'
-import { getCurrentUser } from './AuthGate'
+import { useAuth } from '../context/AuthContext'
 
 export default function PostForm({ onCreated }) {
   const router = useRouter()
-  const [user, setUser] = useState(null)
-  const [imageUrl, setImageUrl] = useState('')
+  const { user, loading: authLoading } = useAuth()
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState('')
   const [description, setDescription] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  useEffect(() => {
-    setUser(getCurrentUser())
-  }, [])
+  function handleImageChange(e) {
+    const file = e.target.files?.[0]
+    if (!file) {
+      setImageFile(null)
+      setImagePreview('')
+      return
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setError('Apenas arquivos de imagem são permitidos.')
+      return
+    }
+
+    setError('')
+    setImageFile(file)
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      setImagePreview(event.target.result)
+    }
+    reader.readAsDataURL(file)
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
     if (!user?.id) return router.push('/login')
-    if (!imageUrl.trim() || !description.trim()) {
+    if (!imageFile || !description.trim()) {
       setError('Imagem e descrição são obrigatórias.')
       return
     }
 
     setSubmitting(true)
     try {
-      const created = await createPost({
-        imageUrl: imageUrl.trim(),
-        description: description.trim(),
-      })
-      setImageUrl('')
+      const formData = new FormData()
+      formData.append('image', imageFile)
+      formData.append('description', description.trim())
+
+      const created = await createPost(formData)
+      setImageFile(null)
+      setImagePreview('')
       setDescription('')
       onCreated?.(created)
       router.refresh()
@@ -42,6 +64,14 @@ export default function PostForm({ onCreated }) {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="card px-4 py-3 text-sm text-neutral-500">
+        Carregando…
+      </div>
+    )
   }
 
   if (!user) {
@@ -59,14 +89,26 @@ export default function PostForm({ onCreated }) {
         <Avatar username={user.username} avatarUrl={user.avatarUrl} />
         <p className="text-sm font-semibold">@{user.username}</p>
       </div>
-      <input
-        type="url"
-        className="input-field"
-        placeholder="URL da imagem (ex: https://images.unsplash.com/...)"
-        value={imageUrl}
-        onChange={(e) => setImageUrl(e.target.value)}
-        required
-      />
+
+      <div className="space-y-2">
+        <label htmlFor="image-input" className="block text-sm font-medium text-neutral-700">
+          Selecionar imagem
+        </label>
+        <input
+          id="image-input"
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="input-field block w-full text-sm"
+          required
+        />
+        {imagePreview && (
+          <div className="relative w-full overflow-hidden rounded bg-neutral-100">
+            <img src={imagePreview} alt="Preview" className="max-h-80 h-auto w-full object-cover" />
+          </div>
+        )}
+      </div>
+
       <textarea
         className="input-field min-h-[80px] resize-y"
         placeholder="Escreva uma legenda…"

@@ -6,7 +6,7 @@
 -- ----------------------------- USERS -----------------------------
 -- Senha de exemplo: 123 (BCrypt). dtype: USER | STUDENT | UNIVERSITY | ADMIN
 INSERT INTO users (id, dtype, username, email, password, avatar_url, bio, student_name, course, university_name, admin_name) VALUES
-(1, 'USER', 'gabriel',      'gabriel@email.com',  '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=gabriel',  'Curtindo a vida e tomando café ☕', NULL, NULL, NULL, NULL),
+(1, 'ADMIN', 'gabriel',      'gabriel@email.com',  '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=gabriel',  'Curtindo a vida e tomando café ☕', NULL, NULL, NULL, NULL),
 (2, 'USER', 'maria',        'maria@email.com',    '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=maria',    'Fotógrafa amadora • SP', NULL, NULL, NULL, NULL),
 (3, 'STUDENT', 'joao_fit',  'joao@email.com',     '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=joao',     'Personal trainer 💪 | dieta + treino', 'João Silva', 'Educação Física', NULL, NULL),
 (4, 'UNIVERSITY', 'lara.viagens', 'lara@email.com', '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=lara', '✈️ 23 países e contando', NULL, NULL, 'USP', NULL),
@@ -26,27 +26,28 @@ ON CONFLICT (id) DO UPDATE SET
     admin_name      = EXCLUDED.admin_name;
 
 -- ----------------------------- POSTS -----------------------------
-INSERT INTO posts (id, user_id, image_url, description, created_at, status) VALUES
-(1,  4, 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', 'Praia perfeita pra começar o dia 🌊', NOW() - INTERVAL '2 hours', 'CONCLUIDA'),
-(2,  5, 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80', 'Pizza de massa fina, do jeito que a vovó fazia 🍕', NOW() - INTERVAL '5 hours', 'CONCLUIDA'),
-(3,  3, 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80', 'Treino de pernas finalizado! Vamos com tudo essa semana 💪', NOW() - INTERVAL '8 hours', 'CONCLUIDA'),
-(4,  6, 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=800&q=80', 'Trabalho novo saindo do forno! O que acharam?', NOW() - INTERVAL '12 hours', 'EM_ANDAMENTO'),
-(5,  2, 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80', 'Pôr do sol ontem na rooftop ✨', NOW() - INTERVAL '14 hours', 'CONCLUIDA'),
-(6,  7, 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80', 'Setup novo pronto pra produzir 💻', NOW() - INTERVAL '20 hours', 'EM_ANDAMENTO'),
-(7,  8, 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80', 'Apresento o Thor, mais novo da casa 🐕', NOW() - INTERVAL '1 day', 'CONCLUIDA'),
-(8,  4, 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80', 'Próxima parada: Tóquio 🇯🇵 alguma recomendação?', NOW() - INTERVAL '1 day 4 hours', 'EM_ANDAMENTO'),
-(9,  1, 'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?auto=format&fit=crop&w=800&q=80', 'Café da manhã preguiçoso de domingo ☕', NOW() - INTERVAL '1 day 8 hours', 'PENDENTE'),
-(10, 5, 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80', 'Bowl colorido e nutritivo pra fechar a semana 🥗', NOW() - INTERVAL '1 day 14 hours', 'CONCLUIDA'),
-(11, 6, 'https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?auto=format&fit=crop&w=800&q=80', 'Estudo de cores que virou quadro 🎨', NOW() - INTERVAL '2 days', 'EM_ANDAMENTO'),
-(12, 3, 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80', 'Corrida de 10k antes do trabalho 🏃‍♂️', NOW() - INTERVAL '2 days 6 hours', 'CONCLUIDA'),
-(13, 7, 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80', 'Aprendendo Spring Boot do zero — qualquer dica é bem-vinda!', NOW() - INTERVAL '2 days 10 hours', 'EM_ANDAMENTO'),
-(14, 8, 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=800&q=80', 'A Mel dormindo, momento mais fofo do dia 💕', NOW() - INTERVAL '2 days 15 hours', 'CONCLUIDA'),
-(15, 2, 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80', 'Trilha hoje rendeu essa foto aqui', NOW() - INTERVAL '3 days', 'CONCLUIDA'),
-(16, 4, 'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?auto=format&fit=crop&w=800&q=80', 'Mochilão pelo sul do Chile 🏔️', NOW() - INTERVAL '3 days 5 hours', 'PENDENTE'),
-(17, 1, 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80', 'Domingão de série e pipoca 🍿', NOW() - INTERVAL '3 days 12 hours', 'CONCLUIDA'),
-(18, 5, 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=800&q=80', 'Brigadeiro caseiro, receita da minha mãe', NOW() - INTERVAL '4 days', 'CONCLUIDA'),
-(19, 6, 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?auto=format&fit=crop&w=800&q=80', 'Sketch da semana — practice makes perfect ✏️', NOW() - INTERVAL '4 days 8 hours', 'EM_ANDAMENTO'),
-(20, 7, 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80', 'Refatorando código antigo, sensação ótima ✨', NOW() - INTERVAL '5 days', 'CONCLUIDA')
+-- Posts de exemplo sem imagem binária (novos posts usam upload multipart)
+INSERT INTO posts (id, user_id, description, created_at, status) VALUES
+(1,  4, 'Praia perfeita pra começar o dia 🌊', NOW() - INTERVAL '2 hours', 'CONCLUIDA'),
+(2,  5, 'Pizza de massa fina, do jeito que a vovó fazia 🍕', NOW() - INTERVAL '5 hours', 'CONCLUIDA'),
+(3,  3, 'Treino de pernas finalizado! Vamos com tudo essa semana 💪', NOW() - INTERVAL '8 hours', 'CONCLUIDA'),
+(4,  6, 'Trabalho novo saindo do forno! O que acharam?', NOW() - INTERVAL '12 hours', 'CONCLUIDA'),
+(5,  2, 'Pôr do sol ontem na rooftop ✨', NOW() - INTERVAL '14 hours', 'CONCLUIDA'),
+(6,  7, 'Setup novo pronto pra produzir 💻', NOW() - INTERVAL '20 hours', 'CONCLUIDA'),
+(7,  8, 'Apresento o Thor, mais novo da casa 🐕', NOW() - INTERVAL '1 day', 'CONCLUIDA'),
+(8,  4, 'Próxima parada: Tóquio 🇯🇵 alguma recomendação?', NOW() - INTERVAL '1 day 4 hours', 'CONCLUIDA'),
+(9,  1, 'Café da manhã preguiçoso de domingo ☕', NOW() - INTERVAL '1 day 8 hours', 'CONCLUIDA'),
+(10, 5, 'Bowl colorido e nutritivo pra fechar a semana 🥗', NOW() - INTERVAL '1 day 14 hours', 'CONCLUIDA'),
+(11, 6, 'Estudo de cores que virou quadro 🎨', NOW() - INTERVAL '2 days', 'CONCLUIDA'),
+(12, 3, 'Corrida de 10k antes do trabalho 🏃‍♂️', NOW() - INTERVAL '2 days 6 hours', 'CONCLUIDA'),
+(13, 7, 'Aprendendo Spring Boot do zero — qualquer dica é bem-vinda!', NOW() - INTERVAL '2 days 10 hours', 'CONCLUIDA'),
+(14, 8, 'A Mel dormindo, momento mais fofo do dia 💕', NOW() - INTERVAL '2 days 15 hours', 'CONCLUIDA'),
+(15, 2, 'Trilha hoje rendeu essa foto aqui', NOW() - INTERVAL '3 days', 'CONCLUIDA'),
+(16, 4, 'Mochilão pelo sul do Chile 🏔️', NOW() - INTERVAL '3 days 5 hours', 'CONCLUIDA'),
+(17, 1, 'Domingão de série e pipoca 🍿', NOW() - INTERVAL '3 days 12 hours', 'CONCLUIDA'),
+(18, 5, 'Brigadeiro caseiro, receita da minha mãe', NOW() - INTERVAL '4 days', 'CONCLUIDA'),
+(19, 6, 'Sketch da semana — practice makes perfect ✏️', NOW() - INTERVAL '4 days 8 hours', 'CONCLUIDA'),
+(20, 7, 'Refatorando código antigo, sensação ótima ✨', NOW() - INTERVAL '5 days', 'CONCLUIDA')
 ON CONFLICT (id) DO NOTHING;
 
 -- ----------------------------- COMMENTS -----------------------------

@@ -5,37 +5,38 @@ import { useParams } from 'next/navigation'
 import Avatar from '../../../components/Avatar'
 import PostCard from '../../../components/PostCard'
 import EmptyState from '../../../components/EmptyState'
-import { getCurrentUser } from '../../../components/AuthGate'
+import { useOptionalAuth } from '../../../hooks/useOptionalAuth'
 import { getPosts, getUserByUsername } from '../../../lib/api'
 
 export default function PublicProfile() {
   const params = useParams()
   const username = params?.username
+  const { user, loading: authLoading } = useOptionalAuth()
   const [profile, setProfile] = useState(null)
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (!username) return
+    if (!username || authLoading) return
     let cancelled = false
     setLoading(true)
     setError('')
 
-    const me = getCurrentUser()
     getUserByUsername(username)
       .then((u) => {
         if (cancelled) return
         setProfile(u)
-        return getPosts({ userId: u.id, currentUserId: me?.id })
+        return getPosts({ userId: u.id, currentUserId: user?.id })
       })
       .then((p) => { if (!cancelled && p) setPosts(Array.isArray(p) ? p : []) })
       .catch(() => { if (!cancelled) setError('Usuário não encontrado.') })
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
-  }, [username])
+  }, [username, user?.id, authLoading])
 
+  if (authLoading) return <p className="text-sm text-neutral-500">Carregando…</p>
   if (loading) return <p className="text-sm text-neutral-500">Carregando…</p>
   if (error || !profile) {
     return <EmptyState icon="🔍" title="Perfil não encontrado" description={error} />

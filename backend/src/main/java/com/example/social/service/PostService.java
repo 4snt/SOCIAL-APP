@@ -9,8 +9,11 @@ import com.example.social.repository.LikeRepository;
 import com.example.social.repository.PostRepository;
 import com.example.social.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 
@@ -29,12 +32,29 @@ public class PostService {
         this.commentRepository = commentRepository;
     }
 
-    public PostResponse create(CreatePostRequest request, Long userId) {
+    public PostResponse create(CreatePostRequest request, Long userId) throws IOException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        
+        MultipartFile imageFile = request.image();
+        
+        // Validar arquivo
+        if (imageFile == null || imageFile.isEmpty()) {
+            throw new IllegalArgumentException("Imagem é obrigatória");
+        }
+        
+        String contentType = imageFile.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new IllegalArgumentException("Apenas arquivos de imagem são permitidos");
+        }
+        
+        byte[] imageData = imageFile.getBytes();
+        
         Post saved = postRepository.save(Post.builder()
                 .user(user)
-                .imageUrl(request.imageUrl())
+                .imageData(imageData)
+                .imageFileName(imageFile.getOriginalFilename())
+                .imageContentType(contentType)
                 .description(request.description())
                 .createdAt(LocalDateTime.now())
                 .status("PENDENTE")
@@ -68,15 +88,34 @@ public class PostService {
         return toResponse(post, currentUserId);
     }
 
+    public byte[] getImageData(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post não encontrado"));
+        return post.getImageData();
+    }
+
+    public Post getPostWithImage(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post não encontrado"));
+    }
+
     private PostResponse toResponse(Post post, Long currentUserId) {
         boolean liked = currentUserId != null &&
                 likeRepository.existsByUserIdAndPostId(currentUserId, post.getId());
+        
+        // Converter imagem para base64 se existir
+        String imageUrl = null;
+        if (post.getImageData() != null && post.getImageData().length > 0) {
+            String base64Image = Base64.getEncoder().encodeToString(post.getImageData());
+            imageUrl = "data:" + post.getImageContentType() + ";base64," + base64Image;
+        }
+        
         return new PostResponse(
                 post.getId(),
                 post.getUser().getId(),
                 post.getUser().getUsername(),
                 post.getUser().getAvatarUrl(),
-                post.getImageUrl(),
+                imageUrl,
                 post.getDescription(),
                 likeRepository.countByPostId(post.getId()),
                 commentRepository.countByPostId(post.getId()),

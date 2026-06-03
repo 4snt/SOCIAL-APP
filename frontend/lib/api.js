@@ -3,15 +3,29 @@
 const API_BASE = '/api'
 
 async function request(path, options = {}) {
+  const headers = { ...(options.headers || {}) }
+  
+  // Não adiciona Content-Type se for FormData (o navegador configura automaticamente)
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json'
+  }
+  
   const res = await fetch(`${API_BASE}${path}`, {
     cache: 'no-store',
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+    headers,
     ...options,
   })
   if (!res.ok) {
     const text = await res.text().catch(() => '')
-    throw new Error(text || `Erro na requisição (${res.status})`)
+    let message = text || `Erro na requisição (${res.status})`
+    try {
+      const json = JSON.parse(text)
+      if (json.message) message = json.message
+    } catch {
+      // mantém texto bruto
+    }
+    throw new Error(message)
   }
   if (res.status === 204) return null
   return res.json()
@@ -34,8 +48,9 @@ export async function getPostById(postId, currentUserId) {
   return request(`/posts/${postId}${qs ? `?${qs}` : ''}`)
 }
 
-export async function createPost(data) {
-  return request(`/posts`, { method: 'POST', body: JSON.stringify(data) })
+export async function createPost(formData) {
+  // formData deve ser uma instância de FormData com "image" e "description"
+  return request(`/posts`, { method: 'POST', body: formData })
 }
 
 // -------- LIKES --------

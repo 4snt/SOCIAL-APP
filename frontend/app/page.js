@@ -5,7 +5,7 @@ import PostCard from '../components/PostCard'
 import PostForm from '../components/PostForm'
 import EmptyState from '../components/EmptyState'
 import { getPosts } from '../lib/api'
-import { getCurrentUser } from '../components/AuthGate'
+import { useOptionalAuth } from '../hooks/useOptionalAuth'
 
 const ORDER_OPTIONS = [
   { value: 'createdAt:desc', label: 'Mais recentes' },
@@ -14,25 +14,28 @@ const ORDER_OPTIONS = [
 ]
 
 export default function HomeFeed() {
+  const { user, loading: authLoading } = useOptionalAuth()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [order, setOrder] = useState('createdAt:desc')
 
   useEffect(() => {
+    if (authLoading) return
     let cancelled = false
     const [sortBy, direction] = order.split(':')
-    const me = getCurrentUser()
 
     setLoading(true)
     setError('')
-    getPosts({ sortBy, direction, currentUserId: me?.id })
+    getPosts({ sortBy, direction, currentUserId: user?.id })
       .then((data) => { if (!cancelled) setPosts(Array.isArray(data) ? data : []) })
       .catch(() => { if (!cancelled) { setError('Não foi possível carregar o feed.'); setPosts([]) } })
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
-  }, [order])
+  }, [order, user?.id, authLoading])
+
+  if (authLoading) return <div className="flex items-center justify-center h-screen">Carregando...</div>
 
   return (
     <main className="space-y-4">

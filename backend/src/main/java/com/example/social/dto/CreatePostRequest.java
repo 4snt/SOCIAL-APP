@@ -1,3 +1,5 @@
 package com.example.social.dto;
 
-public record CreatePostRequest(String imageUrl, String description) {}
+import org.springframework.web.multipart.MultipartFile;
+
+public record CreatePostRequest(MultipartFile image, String description) {}

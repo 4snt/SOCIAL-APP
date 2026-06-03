@@ -4,6 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { loginUser } from '../../lib/api'
+import { useAuth } from '../../context/AuthContext'
+import { useRedirectIfAuthenticated } from '../../hooks/useRedirectIfAuthenticated'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -11,6 +13,8 @@ export default function Login() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const router = useRouter()
+  const { setUserFromLogin } = useAuth()
+  const { ready } = useRedirectIfAuthenticated()
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -19,9 +23,8 @@ export default function Login() {
     try {
       const result = await loginUser({ email, password })
       if (result.success) {
-        localStorage.setItem('user', JSON.stringify(result.user))
-        router.push('/')
-        router.refresh()
+        setUserFromLogin(result.user)
+        router.replace('/')
       } else {
         setError(result.message || 'Credenciais inválidas')
       }
@@ -31,6 +34,8 @@ export default function Login() {
       setSubmitting(false)
     }
   }
+
+  if (!ready) return <div className="flex items-center justify-center h-screen">Carregando...</div>
 
   return (
     <main className="mx-auto max-w-md">

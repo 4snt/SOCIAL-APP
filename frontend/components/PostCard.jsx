@@ -7,11 +7,12 @@ import Avatar from './Avatar'
 import TimeAgo from './TimeAgo'
 import CommentList from './CommentList'
 import { createComment, getComments, likePost, unlikePost } from '../lib/api'
-import { getCurrentUser } from './AuthGate'
+import { useAuth } from '../context/AuthContext'
 import StatusBadge from './StatusBadge'
 
 export default function PostCard({ post }) {
   const router = useRouter()
+  const { user: currentUser } = useAuth()
   const [likes, setLikes] = useState(post.likeCount ?? 0)
   const [liked, setLiked] = useState(!!post.likedByMe)
   const [commentCount, setCommentCount] = useState(post.commentCount ?? 0)
@@ -26,8 +27,7 @@ export default function PostCard({ post }) {
   }, [showComments, comments, post.id])
 
   async function handleLike() {
-    const user = getCurrentUser()
-    if (!user) return router.push('/login')
+    if (!currentUser) return router.push('/login')
 
     // Otimista
     const willLike = !liked
@@ -46,8 +46,7 @@ export default function PostCard({ post }) {
 
   async function handleComment(e) {
     e.preventDefault()
-    const user = getCurrentUser()
-    if (!user) return router.push('/login')
+    if (!currentUser) return router.push('/login')
     const trimmed = text.trim()
     if (!trimmed || submitting) return
 
@@ -81,12 +80,18 @@ export default function PostCard({ post }) {
       </div>
 
       <Link href={`/post/${post.id}`} className="block bg-neutral-100">
-        <img
-          src={post.imageUrl}
-          alt={post.description}
-          className="max-h-[560px] w-full object-cover"
-          loading="lazy"
-        />
+        {post.imageUrl ? (
+          <img
+            src={post.imageUrl}
+            alt={post.description}
+            className="max-h-[560px] w-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="flex h-48 max-h-[560px] w-full items-center justify-center text-sm text-neutral-500">
+            Imagem indisponível
+          </div>
+        )}
       </Link>
 
       <div className="px-4 pb-2 pt-3">

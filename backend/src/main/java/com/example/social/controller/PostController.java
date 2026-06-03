@@ -2,17 +2,22 @@ package com.example.social.controller;
 
 import com.example.social.dto.CreatePostRequest;
 import com.example.social.dto.PostResponse;
+import com.example.social.entity.Post;
 import com.example.social.service.AuthService;
 import com.example.social.service.PostService;
+import java.io.IOException;
 import java.util.List;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -46,8 +51,32 @@ public class PostController {
         return postService.findById(postId, viewerId);
     }
 
-    @PostMapping
-    public PostResponse create(@RequestBody CreatePostRequest request) {
+    @GetMapping("/{postId}/image")
+    public ResponseEntity<byte[]> getImage(@PathVariable Long postId) {
+        Post post = postService.getPostWithImage(postId);
+        
+        if (post.getImageData() == null || post.getImageData().length == 0) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        String fileName = post.getImageFileName() != null ? post.getImageFileName() : "image";
+        String contentType = post.getImageContentType() != null
+                ? post.getImageContentType()
+                : MediaType.APPLICATION_OCTET_STREAM_VALUE;
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"" + fileName + "\"")
+                .contentType(MediaType.parseMediaType(contentType))
+                .body(post.getImageData());
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public PostResponse create(
+            @RequestParam(name = "image") MultipartFile image,
+            @RequestParam(name = "description") String description
+    ) throws IOException {
+        CreatePostRequest request = new CreatePostRequest(image, description);
         Long userId = authService.requireCurrentUser().getId();
         return postService.create(request, userId);
     }
