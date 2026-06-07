@@ -149,7 +149,9 @@ erDiagram
     POSTS {
         bigint id PK
         bigint user_id FK
-        varchar image_url
+        bytea image_data
+        varchar image_file_name
+        varchar image_content_type
         varchar description
         timestamp created_at
     }
@@ -269,12 +271,13 @@ sequenceDiagram
     participant BE as Backend
     participant DB as Postgres
 
-    U->>FE: cola URL da imagem + descrição
-    FE->>BE: POST /api/posts (cookie JSESSIONID)
+    U->>FE: seleciona arquivo + escreve descrição
+    FE->>BE: POST /api/posts multipart/form-data (cookie JSESSIONID)
     BE->>BE: AuthService.requireCurrentUser() ➜ User
-    BE->>DB: INSERT INTO posts (...)
+    BE->>BE: valida MIME type (image/*)
+    BE->>DB: INSERT INTO posts (image_data BYTEA, ...)
     DB-->>BE: post.id
-    BE-->>FE: 200 PostResponse
+    BE-->>FE: 200 PostResponse (imageUrl como data URL base64)
     FE-->>U: post aparece no feed
 
     U->>FE: clica no ❤️
@@ -338,7 +341,7 @@ flowchart LR
 |---|---|---|
 | Senha em hash BCrypt | ✅ | [SecurityConfig.java:71](backend/src/main/java/com/example/social/config/SecurityConfig.java#L71) |
 | Sessão via cookie HttpOnly | ✅ | Padrão do Spring Security |
-| CORS restrito a localhost:3000 | ✅ | [SecurityConfig.java:61](backend/src/main/java/com/example/social/config/SecurityConfig.java#L61) |
+| CORS restrito a localhost:3000 | ✅ | [SecurityConfig.java:61](backend/src/main/java/com/example/social/config/SecurityConfig.java#L61) — atenção: host externo agora é `:6003` |
 | Rotas `/api/posts` e `/api/users/**` GET públicas | ✅ | Por design (feed visível pra visitante) |
 | CSRF | ❌ desabilitado | Aceitável em dev; revisar antes de prod |
 | `/admin` e `/admin/create` sem proteção | ⚠️ | [AdminController.java](backend/src/main/java/com/example/social/controller/AdminController.java) — atualmente fora do prefixo `/api`, sem `requireRole` |
@@ -355,9 +358,9 @@ docker compose up --build
 
 | Serviço | URL |
 |---|---|
-| Frontend | http://localhost:3000 |
-| Backend | http://localhost:8080/api/posts |
-| Postgres | `localhost:5432` (db `socialdb`, user `admin`, senha `abc123`) |
+| Frontend | http://localhost:6003 |
+| Backend | http://localhost:6001/api/posts |
+| Postgres | `localhost:6002` (db `socialdb`, user `admin`, senha `abc123`) |
 
 Em dev local sem Docker, o backend espera Postgres em `localhost:5433` por padrão ([application.yml:3](backend/src/main/resources/application.yml#L3)).
 

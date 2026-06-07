@@ -17,9 +17,9 @@ docker compose up --build
 
 | Serviço | URL |
 |---|---|
-| Frontend | http://localhost:3000 |
-| Backend | http://localhost:8080/api/posts |
-| Postgres | `localhost:5432` (db `socialdb`, user `admin`, senha `abc123`) |
+| Frontend | http://localhost:6003 |
+| Backend | http://localhost:6001/api/posts |
+| Postgres | `localhost:6002` (db `socialdb`, user `admin`, senha `abc123`) |
 
 > Usuários de seed têm senha `123` (ex.: `gabriel@email.com`, `maria@email.com`).
 
