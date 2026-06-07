@@ -11,17 +11,40 @@ Aplicação de feed social acadêmico — projeto da disciplina de Sistemas de I
 
 ## Como subir
 
+### Local (Docker Compose)
+
 ```bash
+# 1. copie o template de variáveis de ambiente
+cp .env.example .env
+
+# 2. ajuste os valores em .env se necessário (defaults já funcionam)
+
+# 3. suba os containers
 docker compose up --build
 ```
 
-| Serviço | URL |
+| Serviço | URL padrão |
 |---|---|
 | Frontend | http://localhost:6003 |
 | Backend | http://localhost:6001/api/posts |
 | Postgres | `localhost:6002` (db `socialdb`, user `admin`, senha `abc123`) |
 
+As portas do host são configuráveis via `DB_HOST_PORT`, `BACKEND_HOST_PORT` e `FRONTEND_HOST_PORT` no `.env`.
+
 > Usuários de seed têm senha `123` (ex.: `gabriel@email.com`, `maria@email.com`).
+
+### Deploy no Coolify
+
+No Coolify, configure as seguintes variáveis de ambiente pelo painel (as portas do host não são necessárias — o Traefik gerencia o roteamento):
+
+| Variável | Descrição | Exemplo prod |
+|---|---|---|
+| `POSTGRES_DB` | Nome do banco | `socialdb` |
+| `POSTGRES_USER` | Usuário do banco | `admin` |
+| `POSTGRES_PASSWORD` | Senha do banco | `<senha segura>` |
+| `SPRING_DATASOURCE_URL` | URL JDBC interna | `jdbc:postgresql://db:5432/socialdb` |
+| `CORS_ALLOWED_ORIGINS` | Domínios permitidos pelo CORS | `https://seu-dominio.com` |
+| `NEXT_PUBLIC_API_URL` | URL interna do backend (server-side) | `http://backend:8080` |
 
 ## Estrutura
 
