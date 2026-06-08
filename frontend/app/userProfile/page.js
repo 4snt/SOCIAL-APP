@@ -1,9 +1,9 @@
 'use client'
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import PostCard from '../../components/PostCard'
 import { getPosts, getUserById } from '../../lib/api'
-import  AuthGuard from '../../components/AuthGuard'
+import { useAuthRedirect } from '../../hooks/useAuthRedirect'
 
 const ORDER_OPTIONS = [
   { value: 'createdAt:desc', label: 'Mais recentes' },
@@ -11,10 +11,11 @@ const ORDER_OPTIONS = [
   { value: 'createdAt:asc', label: 'Mais antigos' },
 ]
 
-export default function UserProfilePage() {
+function UserProfileContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const userId = useMemo(() => searchParams.get('userId'), [searchParams])
+  const { loading: authLoading } = useAuthRedirect()
 
   const [user, setUser] = useState(null)
   const [userError, setUserError] = useState('')
@@ -41,7 +42,6 @@ export default function UserProfilePage() {
     setUserError('')
     setUser(null)
 
-    
     getUserById(userId)
       .then((data) => {
         if (cancelled) return
@@ -84,53 +84,61 @@ export default function UserProfilePage() {
     }
   }, [userId, order])
 
+  if (authLoading) return <div className="flex items-center justify-center h-screen">Carregando...</div>
+
   return (
-    <AuthGuard>
-      <main className="container">
-        <button className="button" type="button" onClick={() => router.back()}>
-          Voltar
-        </button>
+    <main className="container">
+      <button className="button" type="button" onClick={() => router.back()}>
+        Voltar
+      </button>
 
-        <h1>Perfil</h1>
+      <h1>Perfil</h1>
 
-        {!userId ? (
-          <p style={{ color: 'red' }}>Faltou o parâmetro userId na URL.</p>
-        ) : userError ? (
-          <p style={{ color: 'red' }}>{userError}</p>
-        ) : !user ? (
-          <p>Carregando usuário...</p>
-        ) : (
-          <div className="card">
-            <div className="card-content">
-              <p><strong>Usuário:</strong> @{user.username}</p>
-              <p><strong>Email:</strong> {user.email}</p>
-            </div>
+      {!userId ? (
+        <p style={{ color: 'red' }}>Faltou o parâmetro userId na URL.</p>
+      ) : userError ? (
+        <p style={{ color: 'red' }}>{userError}</p>
+      ) : !user ? (
+        <p>Carregando usuário...</p>
+      ) : (
+        <div className="card">
+          <div className="card-content">
+            <p><strong>Usuário:</strong> @{user.username}</p>
+            <p><strong>Email:</strong> {user.email}</p>
           </div>
-        )}
-
-        <h3>Posts</h3>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
-          <label>
-            <strong>Ordenar:</strong>{' '}
-            <select value={order} onChange={(e) => setOrder(e.target.value)} disabled={!userId}>
-              {ORDER_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </label>
         </div>
+      )}
 
-        {postsError && <p style={{ color: 'red' }}>{postsError}</p>}
-        {loadingPosts ? (
-          <p>Carregando posts...</p>
-        ) : posts.length > 0 ? (
-          posts.map((post) => <PostCard key={post.id} post={post} />)
-        ) : (
-          <p>Esse usuário ainda não tem publicações.</p>
-        )}
-      </main>
-    </AuthGuard>
+      <h3>Posts</h3>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
+        <label>
+          <strong>Ordenar:</strong>{' '}
+          <select value={order} onChange={(e) => setOrder(e.target.value)} disabled={!userId}>
+            {ORDER_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      {postsError && <p style={{ color: 'red' }}>{postsError}</p>}
+      {loadingPosts ? (
+        <p>Carregando posts...</p>
+      ) : posts.length > 0 ? (
+        posts.map((post) => <PostCard key={post.id} post={post} />)
+      ) : (
+        <p>Esse usuário ainda não tem publicações.</p>
+      )}
+    </main>
+  )
+}
+
+export default function UserProfilePage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen">Carregando...</div>}>
+      <UserProfileContent />
+    </Suspense>
   )
 }
