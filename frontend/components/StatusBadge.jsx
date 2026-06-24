@@ -1,23 +1,20 @@
 'use client'
+
+const STATUS_MAP = {
+  ABERTA:    { label: 'Aberta',     bg: 'bg-yellow-100', text: 'text-yellow-800', ring: 'ring-yellow-300', dot: 'bg-yellow-500' },
+  EM_ANDAMENTO: { label: 'Em andamento', bg: 'bg-blue-100', text: 'text-blue-800', ring: 'ring-blue-300', dot: 'bg-blue-500' },
+  CONCLUIDA: { label: 'Concluída',  bg: 'bg-green-100',  text: 'text-green-800',  ring: 'ring-green-300',  dot: 'bg-green-500' },
+  CANCELADA: { label: 'Cancelada',  bg: 'bg-red-100',    text: 'text-red-800',    ring: 'ring-red-300',    dot: 'bg-red-400' },
+}
+
 export default function StatusBadge({ status }) {
-  const styles = {
-    PENDENTE:
-      'bg-yellow-100 text-yellow-800 border-yellow-300',
-    EM_ANDAMENTO:
-      'bg-blue-100 text-blue-800 border-blue-300',
-    CONCLUIDA:
-      'bg-green-100 text-green-800 border-green-300',
-    CANCELADA:
-      'bg-red-100 text-red-800 border-red-300',
-  }
+  if (!status) return null
+  const s = STATUS_MAP[status?.toUpperCase()] ?? { label: status, bg: 'bg-neutral-100', text: 'text-neutral-600', ring: 'ring-neutral-200', dot: 'bg-neutral-400' }
 
   return (
-    <span
-      className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${
-        styles[status] || 'bg-gray-100 text-gray-700 border-gray-300'
-      }`}
-    >
-      {status?.replaceAll('_', ' ')}
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ${s.bg} ${s.text} ${s.ring}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
+      {s.label}
     </span>
   )
 }

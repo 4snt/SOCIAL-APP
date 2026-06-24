@@ -18,50 +18,76 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/80 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/90 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-sm font-bold text-white">S</span>
-          <span className="text-base font-semibold tracking-tight">social</span>
+
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-sm font-bold text-white shadow-sm transition group-hover:bg-brand-700">
+            U
+          </span>
+          <div className="flex flex-col leading-none">
+            <span className="text-sm font-bold tracking-tight text-neutral-900">UniVoz</span>
+            <span className="text-[10px] text-neutral-400 font-medium tracking-wide uppercase">UFVJM</span>
+          </div>
         </Link>
 
+        {/* Nav */}
         <nav className="flex items-center gap-1">
           {loading ? (
-            <span className="px-3 text-sm text-neutral-400">…</span>
+            <span className="h-8 w-20 rounded-lg bg-neutral-100 animate-pulse" />
           ) : user ? (
             <>
-              <Link href="/" className="btn-ghost">Feed</Link>
+              <Link href="/" className="btn-ghost text-neutral-600">Feed</Link>
+
               <div className="relative">
                 <button
                   onClick={() => setMenuOpen((v) => !v)}
-                  className="flex items-center gap-2 rounded-full p-1 transition hover:bg-neutral-100"
+                  className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition hover:bg-neutral-100"
                   aria-label="Menu do usuário"
                 >
                   <Avatar username={user.username} avatarUrl={user.avatarUrl} size="sm" />
+                  <span className="hidden sm:block text-sm font-medium text-neutral-700 max-w-[120px] truncate">
+                    {user.username}
+                  </span>
+                  <ChevronIcon />
                 </button>
+
                 {menuOpen && (
-                  <div className="absolute right-0 mt-2 w-44 overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-neutral-200">
-                    <Link
-                      href={`/u/${user.username}`}
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
-                    >
-                      Meu perfil
-                    </Link>
-                    <Link
-                      href="/profile"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
-                    >
-                      Meus posts
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
-                    >
-                      Sair
-                    </button>
-                  </div>
+                  <>
+                    {/* overlay para fechar */}
+                    <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                    <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-neutral-200">
+                      <div className="px-4 py-3 border-b border-neutral-100">
+                        <p className="text-xs text-neutral-400">Conectado como</p>
+                        <p className="text-sm font-semibold truncate text-neutral-800">@{user.username}</p>
+                      </div>
+                      <div className="py-1">
+                        <Link
+                          href={`/u/${user.username}`}
+                          onClick={() => setMenuOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                        >
+                          <PersonIcon /> Meu perfil
+                        </Link>
+                        <Link
+                          href="/profile"
+                          onClick={() => setMenuOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                        >
+                          <GridIcon /> Minhas publicações
+                        </Link>
+                      </div>
+                      <div className="border-t border-neutral-100 py-1">
+                        <button
+                          onClick={handleLogout}
+                          className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                        >
+                          <LogoutIcon /> Sair
+                        </button>
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
             </>
@@ -74,5 +100,34 @@ export default function Header() {
         </nav>
       </div>
     </header>
+  )
+}
+
+function ChevronIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-neutral-400">
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  )
+}
+function PersonIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+    </svg>
+  )
+}
+function GridIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
+    </svg>
+  )
+}
+function LogoutIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
   )
 }
