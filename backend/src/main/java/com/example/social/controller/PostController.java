@@ -4,6 +4,7 @@ import com.example.social.dto.CreatePostRequest;
 import com.example.social.dto.PostResponse;
 import com.example.social.entity.Post;
 import com.example.social.entity.User;
+import com.example.social.service.ActivityLogService;
 import com.example.social.service.AuthService;
 import com.example.social.service.PostService;
 import java.io.IOException;
@@ -25,10 +26,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostController {
     private final PostService postService;
     private final AuthService authService;
+    private final ActivityLogService activityLogService;
 
-    public PostController(PostService postService, AuthService authService) {
+    public PostController(PostService postService, AuthService authService, ActivityLogService activityLogService) {
         this.postService = postService;
         this.authService = authService;
+        this.activityLogService = activityLogService;
     }
 
     @GetMapping
@@ -85,6 +88,7 @@ public class PostController {
     public ResponseEntity<Void> delete(@PathVariable Long postId) {
         User currentUser = authService.requireCurrentUser();
         postService.delete(postId, currentUser.getId(), currentUser instanceof com.example.social.entity.AdminUser);
+        activityLogService.record(currentUser, "DELETE_POST", "POST", postId, "Excluiu uma demanda");
         return ResponseEntity.noContent().build();
     }
 }

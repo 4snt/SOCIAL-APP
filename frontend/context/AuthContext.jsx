@@ -44,6 +44,27 @@ export function AuthProvider({ children }) {
     }
   }, [refresh])
 
+  useEffect(() => {
+    if (!user) return
+
+    const intervalId = window.setInterval(() => {
+      refresh()
+    }, 60000)
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        refresh()
+      }
+    }
+
+    document.addEventListener('visibilitychange', onVisible)
+
+    return () => {
+      window.clearInterval(intervalId)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [user, refresh])
+
   const setUserFromLogin = useCallback((userData) => {
     setUser(userData)
     localStorage.setItem('user', JSON.stringify(userData))

@@ -5,15 +5,15 @@
 
 -- ----------------------------- USERS -----------------------------
 -- Senha de exemplo: 123 (BCrypt). dtype: USER | STUDENT | UNIVERSITY | ADMIN
-INSERT INTO users (id, dtype, username, email, password, avatar_url, bio, student_name, course, university_name, admin_name) VALUES
-(1, 'ADMIN', 'gabriel',      'gabriel@email.com',  '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=gabriel',  'Curtindo a vida e tomando café ☕', NULL, NULL, NULL, NULL),
-(2, 'USER', 'maria',        'maria@email.com',    '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=maria',    'Fotógrafa amadora • SP', NULL, NULL, NULL, NULL),
-(3, 'STUDENT', 'joao_fit',  'joao@email.com',     '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=joao',     'Personal trainer 💪 | dieta + treino', 'João Silva', 'Educação Física', NULL, NULL),
-(4, 'UNIVERSITY', 'lara.viagens', 'lara@email.com', '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=lara', '✈️ 23 países e contando', NULL, NULL, 'USP', NULL),
-(5, 'USER', 'chef_pedro',   'pedro@email.com',    '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=pedro',    'Chef de cozinha 🍝 receitas simples', NULL, NULL, NULL, NULL),
-(6, 'USER', 'ana_arte',     'ana@email.com',      '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ana',      'Ilustradora • aceito comissões', NULL, NULL, NULL, NULL),
-(7, 'USER', 'ricardo_dev',  'ricardo@email.com',  '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ricardo',  'Dev fullstack • Java + React', NULL, NULL, NULL, NULL),
-(8, 'USER', 'julia_pets',   'julia@email.com',    '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=julia',    'Mãe de 3 cachorros 🐶', NULL, NULL, NULL, NULL)
+INSERT INTO users (id, dtype, username, email, password, avatar_url, bio, student_name, course, university_name, admin_name, last_seen_at) VALUES
+(1, 'ADMIN', 'gabriel',      'gabriel@email.com',  '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=gabriel',  'Curtindo a vida e tomando café ☕', NULL, NULL, NULL, NULL, NOW()),
+(2, 'USER', 'maria',        'maria@email.com',    '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=maria',    'Fotógrafa amadora • SP', NULL, NULL, NULL, NULL, NOW()),
+(3, 'STUDENT', 'joao_fit',  'joao@email.com',     '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=joao',     'Personal trainer 💪 | dieta + treino', 'João Silva', 'Educação Física', NULL, NULL, NOW()),
+(4, 'UNIVERSITY', 'lara.viagens', 'lara@email.com', '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=lara', '✈️ 23 países e contando', NULL, NULL, 'USP', NULL, NOW()),
+(5, 'USER', 'chef_pedro',   'pedro@email.com',    '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=pedro',    'Chef de cozinha 🍝 receitas simples', NULL, NULL, NULL, NULL, NOW()),
+(6, 'USER', 'ana_arte',     'ana@email.com',      '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ana',      'Ilustradora • aceito comissões', NULL, NULL, NULL, NULL, NOW()),
+(7, 'USER', 'ricardo_dev',  'ricardo@email.com',  '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ricardo',  'Dev fullstack • Java + React', NULL, NULL, NULL, NULL, NOW()),
+(8, 'USER', 'julia_pets',   'julia@email.com',    '$2a$10$o2432sPXEdwNyDgoc7TxLeiXPuD.5J81aqgYsUAZOLbwWdcUdtAcu', 'https://api.dicebear.com/7.x/avataaars/svg?seed=julia',    'Mãe de 3 cachorros 🐶', NULL, NULL, NULL, NULL, NOW())
 ON CONFLICT (id) DO UPDATE SET
     dtype           = EXCLUDED.dtype,
     username        = EXCLUDED.username,
@@ -23,7 +23,8 @@ ON CONFLICT (id) DO UPDATE SET
     student_name    = EXCLUDED.student_name,
     course          = EXCLUDED.course,
     university_name = EXCLUDED.university_name,
-    admin_name      = EXCLUDED.admin_name;
+    admin_name      = EXCLUDED.admin_name,
+    last_seen_at    = EXCLUDED.last_seen_at;
 
 -- ----------------------------- POSTS -----------------------------
 -- Limpa o feed antigo e recria posts orientados a demandas da universidade.

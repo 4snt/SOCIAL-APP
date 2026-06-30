@@ -4,6 +4,7 @@ import com.example.social.dto.LoginRequest;
 import com.example.social.dto.UserResponse;
 import com.example.social.entity.User;
 import com.example.social.service.AuthService;
+import com.example.social.service.ActivityLogService;
 import com.example.social.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import java.util.Map;
@@ -27,15 +28,18 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final AuthService authService;
+    private final ActivityLogService activityLogService;
 
     public AuthController(
             AuthenticationManager authenticationManager,
             UserService userService,
-            AuthService authService
+            AuthService authService,
+            ActivityLogService activityLogService
     ) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.authService = authService;
+        this.activityLogService = activityLogService;
     }
 
     @PostMapping("/login")
@@ -51,6 +55,8 @@ public class AuthController {
             );
             User user = userService.findByEmail(request.email())
                     .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                userService.touchPresence(user);
+                activityLogService.record(user, "LOGIN", "AUTH", null, "Entrou no sistema");
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "user", toResponse(user)
@@ -70,6 +76,10 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(HttpSession session) {
+        authService.getCurrentUser().ifPresent(user -> {
+            userService.touchPresence(user);
+            activityLogService.record(user, "LOGOUT", "AUTH", null, "Saiu do sistema");
+        });
         session.invalidate();
         SecurityContextHolder.clearContext();
         return ResponseEntity.ok(Map.of("message", "Logout realizado"));
@@ -78,7 +88,10 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> me() {
         return authService.getCurrentUser()
-                .map(user -> ResponseEntity.ok(toResponse(user)))
+                .map(user -> {
+                    User touched = userService.touchPresence(user);
+                    return ResponseEntity.ok(toResponse(touched));
+                })
                 .orElse(ResponseEntity.status(401).build());
     }
 
@@ -89,7 +102,9 @@ public class AuthController {
                 u.getEmail(),
                 u.getAvatarUrl(),
                 u.getBio(),
-                userService.resolveUserType(u)
+                userService.resolveUserType(u),
+                u.getLastSeenAt(),
+                userService.isOnline(u)
         );
     }
 }

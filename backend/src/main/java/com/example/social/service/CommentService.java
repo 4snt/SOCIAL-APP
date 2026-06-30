@@ -19,11 +19,13 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final ActivityLogService activityLogService;
 
-    public CommentService(CommentRepository commentRepository, UserRepository userRepository, PostRepository postRepository) {
+    public CommentService(CommentRepository commentRepository, UserRepository userRepository, PostRepository postRepository, ActivityLogService activityLogService) {
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.postRepository = postRepository;
+        this.activityLogService = activityLogService;
     }
 
     public List<CommentResponse> findByPostId(Long postId) {
@@ -44,6 +46,7 @@ public class CommentService {
                 .content(request.content())
                 .createdAt(LocalDateTime.now())
                 .build());
+        activityLogService.record(user, "CREATE_COMMENT", "POST", postId, request.content());
         return toResponse(saved);
     }
 

@@ -37,4 +37,13 @@ public class AuthService {
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
                         org.springframework.http.HttpStatus.UNAUTHORIZED, "Não autenticado"));
     }
+
+    public User requireAdmin() {
+        User user = requireCurrentUser();
+        if (!(user instanceof com.example.social.entity.AdminUser)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "Acesso restrito ao admin");
+        }
+        return user;
+    }
 }

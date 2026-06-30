@@ -24,13 +24,16 @@ public class PostService {
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
+    private final ActivityLogService activityLogService;
 
     public PostService(PostRepository postRepository, UserRepository userRepository,
-                       LikeRepository likeRepository, CommentRepository commentRepository) {
+                       LikeRepository likeRepository, CommentRepository commentRepository,
+                       ActivityLogService activityLogService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.likeRepository = likeRepository;
         this.commentRepository = commentRepository;
+        this.activityLogService = activityLogService;
     }
 
     public PostResponse create(CreatePostRequest request, Long userId) throws IOException {
@@ -60,6 +63,7 @@ public class PostService {
                 .createdAt(LocalDateTime.now())
                 .status("PENDENTE")
                 .build());
+        activityLogService.record(user, "CREATE_POST", "POST", saved.getId(), request.description());
         return toResponse(saved, userId);
     }
 

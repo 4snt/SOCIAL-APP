@@ -106,3 +106,12 @@ export async function getUserByUsername(username) {
 export async function getUserById(id) {
   return request(`/users/${id}`)
 }
+
+// -------- ADMIN --------
+export async function getAdminUsers() {
+  return request(`/admin/users`)
+}
+
+export async function getAdminActivity() {
+  return request(`/admin/activity`)
+}

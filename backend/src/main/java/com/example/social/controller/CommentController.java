@@ -3,6 +3,7 @@ package com.example.social.controller;
 import com.example.social.dto.CommentResponse;
 import com.example.social.dto.CreateCommentRequest;
 import com.example.social.entity.User;
+import com.example.social.service.ActivityLogService;
 import com.example.social.service.AuthService;
 import com.example.social.service.CommentService;
 import java.util.List;
@@ -19,10 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommentController {
     private final CommentService commentService;
     private final AuthService authService;
+    private final ActivityLogService activityLogService;
 
-    public CommentController(CommentService commentService, AuthService authService) {
+    public CommentController(CommentService commentService, AuthService authService, ActivityLogService activityLogService) {
         this.commentService = commentService;
         this.authService = authService;
+        this.activityLogService = activityLogService;
     }
 
     @GetMapping("/posts/{postId}/comments")
@@ -40,5 +43,6 @@ public class CommentController {
     public void delete(@PathVariable Long commentId) {
         User currentUser = authService.requireCurrentUser();
         commentService.delete(commentId, currentUser.getId(), currentUser instanceof com.example.social.entity.AdminUser);
+        activityLogService.record(currentUser, "DELETE_COMMENT", "COMMENT", commentId, "Excluiu um comentário");
     }
 }

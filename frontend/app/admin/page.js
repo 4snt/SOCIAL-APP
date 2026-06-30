@@ -7,12 +7,14 @@ import EmptyState from '../../components/EmptyState'
 import StatusBadge from '../../components/StatusBadge'
 import TimeAgo from '../../components/TimeAgo'
 import { useAuthRedirect } from '../../hooks/useAuthRedirect'
-import { deleteComment, deletePost, getComments, getPosts } from '../../lib/api'
+import { deleteComment, deletePost, getAdminActivity, getAdminUsers, getComments, getPosts } from '../../lib/api'
 
 export default function AdminPage() {
   const { user, loading: authLoading } = useAuthRedirect()
   const [posts, setPosts] = useState([])
   const [commentsByPost, setCommentsByPost] = useState({})
+  const [adminUsers, setAdminUsers] = useState([])
+  const [activity, setActivity] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filter, setFilter] = useState('')
@@ -30,9 +32,15 @@ export default function AdminPage() {
       setLoading(true)
       setError('')
       try {
-        const postsData = await getPosts({ sortBy: 'createdAt', direction: 'desc', currentUserId: user.id })
+        const [postsData, usersData, activityData] = await Promise.all([
+          getPosts({ sortBy: 'createdAt', direction: 'desc', currentUserId: user.id }),
+          getAdminUsers(),
+          getAdminActivity(),
+        ])
         if (cancelled) return
         setPosts(Array.isArray(postsData) ? postsData : [])
+        setAdminUsers(Array.isArray(usersData) ? usersData : [])
+        setActivity(Array.isArray(activityData) ? activityData : [])
 
         const commentsEntries = await Promise.all(
           (Array.isArray(postsData) ? postsData : []).map(async (post) => {
@@ -49,6 +57,8 @@ export default function AdminPage() {
           setError(err.message || 'Não foi possível carregar o painel de admin.')
           setPosts([])
           setCommentsByPost({})
+          setAdminUsers([])
+          setActivity([])
         }
       } finally {
         if (!cancelled) setLoading(false)
@@ -167,6 +177,21 @@ export default function AdminPage() {
           </div>
         </div>
 
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-xl border border-neutral-200 p-4">
+            <p className="text-xs uppercase tracking-wide text-neutral-500">Usuários online</p>
+            <p className="mt-1 text-2xl font-bold">{adminUsers.filter((item) => item.online).length}</p>
+          </div>
+          <div className="rounded-xl border border-neutral-200 p-4">
+            <p className="text-xs uppercase tracking-wide text-neutral-500">Usuários offline</p>
+            <p className="mt-1 text-2xl font-bold">{adminUsers.filter((item) => !item.online).length}</p>
+          </div>
+          <div className="rounded-xl border border-neutral-200 p-4">
+            <p className="text-xs uppercase tracking-wide text-neutral-500">Ações recentes</p>
+            <p className="mt-1 text-2xl font-bold">{activity.length}</p>
+          </div>
+        </div>
+
         <input
           className="input-field"
           value={filter}
@@ -176,6 +201,69 @@ export default function AdminPage() {
       </section>
 
       {error && <p className="rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">{error}</p>}
+
+      <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="card space-y-4 p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold text-neutral-900">Usuários e presença</h2>
+              <p className="text-sm text-neutral-500">Status calculado pela última atividade recente.</p>
+            </div>
+          </div>
+
+          {adminUsers.length === 0 ? (
+            <p className="text-sm text-neutral-500">Nenhum usuário encontrado.</p>
+          ) : (
+            <div className="space-y-3">
+              {adminUsers.map((adminUser) => (
+                <div key={adminUser.id} className="flex items-center gap-3 rounded-xl border border-neutral-200 p-3">
+                  <Avatar username={adminUser.username} avatarUrl={adminUser.avatarUrl} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold">@{adminUser.username}</p>
+                    <p className="text-xs text-neutral-500">{adminUser.userType} · {adminUser.online ? 'online' : 'offline'}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-xs font-semibold ${adminUser.online ? 'text-green-600' : 'text-neutral-500'}`}>
+                      {adminUser.online ? 'Ativo' : 'Inativo'}
+                    </p>
+                    {adminUser.lastSeenAt && <TimeAgo date={adminUser.lastSeenAt} />}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="card space-y-4 p-5">
+          <div>
+            <h2 className="text-base font-semibold text-neutral-900">Histórico de ações</h2>
+            <p className="text-sm text-neutral-500">Login, logout, criação e remoção ficam registrados aqui.</p>
+          </div>
+
+          {activity.length === 0 ? (
+            <p className="text-sm text-neutral-500">Nenhuma ação registrada ainda.</p>
+          ) : (
+            <div className="space-y-3">
+              {activity.map((entry) => (
+                <div key={entry.id} className="rounded-xl border border-neutral-200 p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold">@{entry.username}</p>
+                      <p className="text-xs text-neutral-500">
+                        {entry.actionType}
+                        {entry.targetType ? ` · ${entry.targetType}` : ''}
+                        {entry.targetId ? ` #${entry.targetId}` : ''}
+                      </p>
+                    </div>
+                    <TimeAgo date={entry.createdAt} />
+                  </div>
+                  {entry.details && <p className="mt-2 text-sm text-neutral-700">{entry.details}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
 
       {filteredPosts.length === 0 ? (
         <EmptyState

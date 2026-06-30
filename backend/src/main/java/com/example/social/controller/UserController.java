@@ -2,6 +2,8 @@ package com.example.social.controller;
 
 import com.example.social.dto.UserResponse;
 import com.example.social.entity.User;
+import com.example.social.service.AuthService;
+import com.example.social.service.ActivityLogService;
 import com.example.social.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,17 +19,31 @@ public class UserController {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final AuthService authService;
+    private final ActivityLogService activityLogService;
 
-    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder, AuthService authService, ActivityLogService activityLogService) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.authService = authService;
+        this.activityLogService = activityLogService;
     }
 
     @PostMapping("/auth/register")
     public UserResponse register(@RequestBody User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User saved = userService.createUser(user);
+        userService.touchPresence(saved);
+        activityLogService.record(saved, "REGISTER", "USER", saved.getId(), "Criou uma conta");
         return toResponse(saved);
+    }
+
+    @GetMapping("/users")
+    public java.util.List<UserResponse> listUsers() {
+        authService.requireAdmin();
+        return userService.findAll().stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @GetMapping("/users/{id}")
@@ -51,7 +67,9 @@ public class UserController {
                 u.getEmail(),
                 u.getAvatarUrl(),
                 u.getBio(),
-                userService.resolveUserType(u)
+                userService.resolveUserType(u),
+                u.getLastSeenAt(),
+                userService.isOnline(u)
         );
     }
 }

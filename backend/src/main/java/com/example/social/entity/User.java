@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,4 +48,7 @@ public class User {
 
     @Column(length = 200)
     private String bio;
+
+    @Column(name = "last_seen_at")
+    private LocalDateTime lastSeenAt;
 }

@@ -5,12 +5,15 @@ import com.example.social.entity.StudentsUser;
 import com.example.social.entity.User;
 import com.example.social.entity.UniversityUser;
 import com.example.social.repository.UserRepository;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -62,6 +65,16 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email);
     }
 
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    @Transactional
+    public User touchPresence(User user) {
+        user.setLastSeenAt(LocalDateTime.now());
+        return userRepository.save(user);
+    }
+
     public String resolveUserType(User user) {
         if (user instanceof AdminUser) {
             return "ADMIN";
@@ -73,5 +86,12 @@ public class UserService implements UserDetailsService {
             return "UNIVERSITY";
         }
         return "USER";
+    }
+
+    public boolean isOnline(User user) {
+        if (user.getLastSeenAt() == null) {
+            return false;
+        }
+        return user.getLastSeenAt().isAfter(LocalDateTime.now().minusMinutes(5));
     }
 }
