@@ -91,7 +91,7 @@ export default function PostForm({ onCreated }) {
     return (
       <button
         onClick={() => setExpanded(true)}
-        className="card w-full flex items-center gap-3 px-4 py-3.5 text-left transition hover:ring-brand-200 hover:ring-2"
+        className="card w-full flex items-center gap-3 px-4 py-3.5 text-left transition hover:ring-[#9FCBAD] hover:ring-2"
       >
         <Avatar username={user.username} avatarUrl={user.avatarUrl} size="sm" />
         <span className="text-sm text-neutral-400">Compartilhe uma demanda ou problema…</span>
@@ -146,7 +146,7 @@ export default function PostForm({ onCreated }) {
             onChange={handleImageChange}
             className="hidden"
           />
-          <span className="inline-flex items-center gap-1 rounded-lg border border-dashed border-neutral-300 px-3 py-1.5 text-xs text-neutral-500 hover:border-brand-400 hover:text-brand-600 transition">
+          <span className="inline-flex items-center gap-1 rounded-lg border border-dashed border-neutral-300 px-3 py-1.5 text-xs text-neutral-500 hover:border-[#6EADBC] hover:text-[#4A4466] transition">
             <ImageIcon /> Escolher foto
           </span>
         </label>

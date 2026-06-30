@@ -1,25 +1,25 @@
 'use client'
-
+ 
 import { useEffect, useState } from 'react'
 import PostCard from '../components/PostCard'
 import PostForm from '../components/PostForm'
 import EmptyState from '../components/EmptyState'
 import { getPosts } from '../lib/api'
 import { useOptionalAuth } from '../hooks/useOptionalAuth'
-
+ 
 const ORDER_OPTIONS = [
   { value: 'createdAt:desc', label: 'Mais recentes' },
   { value: 'likes:desc',     label: 'Mais curtidos' },
   { value: 'username:asc',   label: 'Usuário (A-Z)' },
 ]
-
+ 
 export default function HomeFeed() {
   const { user, loading: authLoading } = useOptionalAuth()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [order, setOrder] = useState('createdAt:desc')
-
+ 
   useEffect(() => {
     if (authLoading) return
     let cancelled = false
@@ -32,56 +32,56 @@ export default function HomeFeed() {
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [order, user?.id, authLoading])
-
+ 
   if (authLoading) return (
     <div className="flex items-center justify-center h-[60vh]">
-      <div className="h-8 w-8 rounded-full border-2 border-brand-600 border-t-transparent animate-spin" />
+      <div className="h-8 w-8 rounded-full border-2 border-[#4A4466] border-t-transparent animate-spin" />
     </div>
   )
-
+ 
   return (
     <main className="space-y-5">
       {/* Hero universitário — só para quem não está logado */}
       {!user && (
-        <section className="rounded-2xl bg-gradient-to-br from-brand-700 to-brand-500 px-6 py-8 text-white shadow-md">
-          <p className="text-xs font-semibold uppercase tracking-widest text-brand-200 mb-2">UFVJM · UniVoz</p>
-          <h1 className="text-2xl font-bold leading-tight mb-2">
-            A voz da comunidade<br />universitária
+        <section className="rounded-2xl px-6 py-10 text-white shadow-md flex flex-col items-center text-center" style={{ backgroundColor: '#2969BD' }}>
+          <p className="text-xs font-bold uppercase tracking-widest mb-2 text-white drop-shadow-sm">UFVJM · UniVoz</p>
+          <h1 className="font-oswald text-4xl font-bold leading-tight mb-3 text-white drop-shadow-sm tracking-wide">
+            A Voz da Comunidade<br />Universitária
           </h1>
-          <p className="text-sm text-brand-100 mb-5">
+          <p className="text-sm font-medium mb-5 max-w-md text-[#F1F7D4]">
             Compartilhe demandas, problemas e sugestões com a sua comunidade acadêmica.
           </p>
           <div className="flex gap-2">
-            <a href="/signup" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-50 transition">
+            <a href="/signup" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold hover:bg-[#4E84CA] hover:text-white transition" style={{ color: '#071D41' }}>
               Criar conta
             </a>
-            <a href="/login" className="rounded-lg border border-brand-300 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600 transition">
+            <a href="/login" className="rounded-lg border-2 border-white px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20">
               Entrar
             </a>
           </div>
         </section>
       )}
-
+ 
       {/* Cabeçalho do feed */}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold tracking-tight text-neutral-900">Feed</h2>
         <select
           value={order}
           onChange={(e) => setOrder(e.target.value)}
-          className="rounded-xl border border-neutral-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+          className="rounded-xl border border-neutral-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-[#4E84CA] focus:ring-2 focus:ring-[#6EADBC33]"
         >
           {ORDER_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
       </div>
-
+ 
       <PostForm onCreated={(p) => setPosts((prev) => [p, ...prev])} />
-
+ 
       {error && (
         <p className="rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">{error}</p>
       )}
-
+ 
       {loading ? (
         <FeedSkeleton />
       ) : posts.length === 0 ? (
@@ -98,7 +98,7 @@ export default function HomeFeed() {
     </main>
   )
 }
-
+ 
 function FeedSkeleton() {
   return (
     <div className="space-y-4">
