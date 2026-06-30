@@ -9,6 +9,8 @@ public record PostResponse(
         Long userId,
         String username,
         String avatarUrl,
+        String userType,
+        boolean authorOnline,
         String imageUrl,
         String description,
         long likeCount,

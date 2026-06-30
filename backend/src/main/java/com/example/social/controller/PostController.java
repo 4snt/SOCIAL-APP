@@ -76,7 +76,7 @@ public class PostController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public PostResponse create(
-            @RequestParam(name = "image") MultipartFile image,
+            @RequestParam(name = "image", required = false) MultipartFile image,
             @RequestParam(name = "description") String description
     ) throws IOException {
         CreatePostRequest request = new CreatePostRequest(image, description);

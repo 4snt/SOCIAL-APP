@@ -5,6 +5,8 @@ import com.example.social.entity.User;
 import com.example.social.repository.LikeRepository;
 import com.example.social.repository.PostRepository;
 import com.example.social.repository.UserRepository;
+import com.example.social.repository.ActivityLogRepository;
+import com.example.social.repository.NotificationRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +43,12 @@ class ApiEndpointsTest {
     private LikeRepository likeRepository;
 
     @Autowired
+    private ActivityLogRepository activityLogRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private User gabriel;
@@ -58,6 +66,8 @@ class ApiEndpointsTest {
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = port;
 
+        notificationRepository.deleteAll();
+        activityLogRepository.deleteAll();
         likeRepository.deleteAll();
         postRepository.deleteAll();
         userRepository.deleteAll();

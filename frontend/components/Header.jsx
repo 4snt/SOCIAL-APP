@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Avatar from './Avatar'
 import { useAuth } from '../context/AuthContext'
+import NotificationMenu from './NotificationMenu'
 
 export default function Header() {
   const router = useRouter()
@@ -39,6 +40,13 @@ export default function Header() {
           ) : user ? (
             <>
               <Link href="/" className="btn-ghost text-neutral-600">Feed</Link>
+              {user.userType === 'ADMIN' && (
+                <Link href="/admin" className="btn-outline hidden sm:inline-flex">
+                  <ShieldIcon /> Admin
+                </Link>
+              )}
+              <Link href="/help" className="btn-ghost hidden sm:inline-flex">Ajuda</Link>
+              <NotificationMenu />
 
               <div className="relative">
                 <button
@@ -85,6 +93,13 @@ export default function Header() {
                           className="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
                         >
                           <GridIcon /> Minhas publicações
+                        </Link>
+                        <Link
+                          href="/help"
+                          onClick={() => setMenuOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                        >
+                          <HelpIcon /> Ajuda
                         </Link>
                       </div>
                       <div className="border-t border-neutral-100 py-1">
@@ -147,4 +162,7 @@ function ShieldIcon() {
       <path d="m9 12 2 2 4-4" />
     </svg>
   )
+}
+function HelpIcon() {
+  return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 1-1 1.7"/><path d="M12 17h.01"/></svg>
 }

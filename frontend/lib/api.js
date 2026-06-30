@@ -115,3 +115,22 @@ export async function getAdminUsers() {
 export async function getAdminActivity() {
   return request(`/admin/activity`)
 }
+
+export async function updatePostStatus(postId, status) {
+  return request(`/admin/posts/${postId}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ status }),
+  })
+}
+
+export async function getNotifications() {
+  return request('/notifications')
+}
+
+export async function getUnreadNotificationCount() {
+  return request('/notifications/unread-count')
+}
+
+export async function markNotificationRead(id) {
+  return request(`/notifications/${id}/read`, { method: 'PUT' })
+}

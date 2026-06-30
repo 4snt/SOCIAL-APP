@@ -7,6 +7,8 @@ public record CommentResponse(
         Long userId,
         String username,
         String avatarUrl,
+        String userType,
+        boolean authorOnline,
         String content,
         LocalDateTime createdAt
 ) {}

@@ -28,3 +28,17 @@ CREATE TABLE IF NOT EXISTS activity_logs (
 	details VARCHAR(500),
 	created_at TIMESTAMP NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS notifications (
+    id BIGSERIAL PRIMARY KEY,
+    recipient_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    actor_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    type VARCHAR(40) NOT NULL,
+    message VARCHAR(300) NOT NULL,
+    post_id BIGINT,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_recipient_created
+    ON notifications(recipient_id, created_at DESC);

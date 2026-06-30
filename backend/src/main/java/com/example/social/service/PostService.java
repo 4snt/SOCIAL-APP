@@ -17,9 +17,13 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class PostService {
+    private static final Set<String> ALLOWED_STATUSES = Set.of(
+            "PENDENTE", "ABERTA", "EM_ANDAMENTO", "CONCLUIDA", "CANCELADA"
+    );
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
@@ -43,21 +47,20 @@ public class PostService {
         MultipartFile imageFile = request.image();
         
         // Validar arquivo
-        if (imageFile == null || imageFile.isEmpty()) {
-            throw new IllegalArgumentException("Imagem é obrigatória");
+        String contentType = null;
+        byte[] imageData = null;
+        if (imageFile != null && !imageFile.isEmpty()) {
+            contentType = imageFile.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new IllegalArgumentException("Apenas arquivos de imagem são permitidos");
+            }
+            imageData = imageFile.getBytes();
         }
-        
-        String contentType = imageFile.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new IllegalArgumentException("Apenas arquivos de imagem são permitidos");
-        }
-        
-        byte[] imageData = imageFile.getBytes();
         
         Post saved = postRepository.save(Post.builder()
                 .user(user)
                 .imageData(imageData)
-                .imageFileName(imageFile.getOriginalFilename())
+                .imageFileName(imageFile == null ? null : imageFile.getOriginalFilename())
                 .imageContentType(contentType)
                 .description(request.description())
                 .createdAt(LocalDateTime.now())
@@ -75,6 +78,7 @@ public class PostService {
         Comparator<PostResponse> comparator = switch (sortBy) {
             case "username" -> Comparator.comparing(PostResponse::username, String.CASE_INSENSITIVE_ORDER);
             case "likes" -> Comparator.comparingLong(PostResponse::likeCount);
+            case "attention" -> Comparator.comparingLong(post -> post.likeCount() + (post.commentCount() * 2));
             default -> Comparator.comparing(PostResponse::createdAt);
         };
         if ("desc".equalsIgnoreCase(direction)) {
@@ -117,6 +121,17 @@ public class PostService {
                 .orElseThrow(() -> new RuntimeException("Post não encontrado"));
     }
 
+    @Transactional
+    public PostResponse updateStatus(Long postId, String status, Long currentUserId) {
+        if (status == null || !ALLOWED_STATUSES.contains(status.toUpperCase())) {
+            throw new IllegalArgumentException("Situação de demanda inválida");
+        }
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post não encontrado"));
+        post.setStatus(status.toUpperCase());
+        return toResponse(postRepository.save(post), currentUserId);
+    }
+
     private PostResponse toResponse(Post post, Long currentUserId) {
         boolean liked = currentUserId != null &&
                 likeRepository.existsByUserIdAndPostId(currentUserId, post.getId());
@@ -133,6 +148,8 @@ public class PostService {
                 post.getUser().getId(),
                 post.getUser().getUsername(),
                 post.getUser().getAvatarUrl(),
+                resolveUserType(post.getUser()),
+                isOnline(post.getUser()),
                 imageUrl,
                 post.getDescription(),
                 likeRepository.countByPostId(post.getId()),
@@ -141,5 +158,16 @@ public class PostService {
                 post.getCreatedAt(),
                 post.getStatus()
         );
+    }
+
+    private String resolveUserType(User user) {
+        if (user instanceof com.example.social.entity.AdminUser) return "ADMIN";
+        if (user instanceof com.example.social.entity.UniversityUser) return "UNIVERSITY";
+        if (user instanceof com.example.social.entity.StudentsUser) return "STUDENT";
+        return "USER";
+    }
+
+    private boolean isOnline(User user) {
+        return user.getLastSeenAt() != null && user.getLastSeenAt().isAfter(LocalDateTime.now().minusMinutes(5));
     }
 }

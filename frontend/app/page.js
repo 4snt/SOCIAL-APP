@@ -10,6 +10,7 @@ import { useOptionalAuth } from '../hooks/useOptionalAuth'
 const ORDER_OPTIONS = [
   { value: 'createdAt:desc', label: 'Mais recentes' },
   { value: 'likes:desc',     label: 'Mais curtidos' },
+  { value: 'attention:desc', label: 'Em destaque' },
   { value: 'username:asc',   label: 'Usuário (A-Z)' },
 ]
  

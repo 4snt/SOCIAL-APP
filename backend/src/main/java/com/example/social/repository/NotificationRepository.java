@@ -1,0 +1,10 @@
+package com.example.social.repository;
+
+import com.example.social.entity.Notification;
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface NotificationRepository extends JpaRepository<Notification, Long> {
+    List<Notification> findTop30ByRecipientIdOrderByCreatedAtDesc(Long recipientId);
+    long countByRecipientIdAndReadFalse(Long recipientId);
+}

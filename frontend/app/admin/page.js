@@ -6,8 +6,17 @@ import Avatar from '../../components/Avatar'
 import EmptyState from '../../components/EmptyState'
 import StatusBadge from '../../components/StatusBadge'
 import TimeAgo from '../../components/TimeAgo'
+import UserBadge from '../../components/UserBadge'
 import { useAuthRedirect } from '../../hooks/useAuthRedirect'
-import { deleteComment, deletePost, getAdminActivity, getAdminUsers, getComments, getPosts } from '../../lib/api'
+import { deleteComment, deletePost, getAdminActivity, getAdminUsers, getComments, getPosts, updatePostStatus } from '../../lib/api'
+
+const STATUS_OPTIONS = [
+  ['PENDENTE', 'Pendente'],
+  ['ABERTA', 'Aberta'],
+  ['EM_ANDAMENTO', 'Em andamento'],
+  ['CONCLUIDA', 'Concluída'],
+  ['CANCELADA', 'Cancelada'],
+]
 
 export default function AdminPage() {
   const { user, loading: authLoading } = useAuthRedirect()
@@ -20,6 +29,7 @@ export default function AdminPage() {
   const [filter, setFilter] = useState('')
   const [deletingPostId, setDeletingPostId] = useState(null)
   const [deletingCommentId, setDeletingCommentId] = useState(null)
+  const [updatingPostId, setUpdatingPostId] = useState(null)
 
   useEffect(() => {
     if (authLoading) return
@@ -129,6 +139,19 @@ export default function AdminPage() {
     }
   }
 
+  async function handleStatusChange(postId, status) {
+    setUpdatingPostId(postId)
+    setError('')
+    try {
+      const updated = await updatePostStatus(postId, status)
+      setPosts((current) => current.map((post) => post.id === postId ? { ...post, status: updated.status } : post))
+    } catch (err) {
+      setError(err.message || 'Não foi possível alterar a situação da demanda.')
+    } finally {
+      setUpdatingPostId(null)
+    }
+  }
+
   if (authLoading || loading) {
     return <div className="flex items-center justify-center h-[60vh]">Carregando…</div>
   }
@@ -220,6 +243,7 @@ export default function AdminPage() {
                   <Avatar username={adminUser.username} avatarUrl={adminUser.avatarUrl} size="sm" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold">@{adminUser.username}</p>
+                    <UserBadge userType={adminUser.userType} />
                     <p className="text-xs text-neutral-500">{adminUser.userType} · {adminUser.online ? 'online' : 'offline'}</p>
                   </div>
                   <div className="text-right">
@@ -289,14 +313,26 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => handleDeletePost(post.id)}
-                    disabled={deletingPostId === post.id}
-                    className="btn-primary bg-red-600 hover:bg-red-700 disabled:opacity-60"
-                  >
-                    {deletingPostId === post.id ? 'Excluindo…' : 'Excluir demanda'}
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="text-xs font-medium text-neutral-600" htmlFor={`status-${post.id}`}>Situação</label>
+                    <select
+                      id={`status-${post.id}`}
+                      value={post.status || 'PENDENTE'}
+                      onChange={(event) => handleStatusChange(post.id, event.target.value)}
+                      disabled={updatingPostId === post.id}
+                      className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#6EADBC] disabled:opacity-60"
+                    >
+                      {STATUS_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => handleDeletePost(post.id)}
+                      disabled={deletingPostId === post.id}
+                      className="btn-primary bg-red-600 hover:bg-red-700 disabled:opacity-60"
+                    >
+                      {deletingPostId === post.id ? 'Excluindo…' : 'Excluir demanda'}
+                    </button>
+                  </div>
                 </div>
 
                 <p className="whitespace-pre-wrap text-sm text-neutral-800">{post.description}</p>
@@ -317,10 +353,10 @@ export default function AdminPage() {
                   ) : (
                     <div className="space-y-3">
                       {comments.map((comment) => (
-                        <div key={comment.id} className="rounded-xl border border-neutral-200 p-4">
+                        <div key={comment.id} className={`rounded-xl border p-4 ${comment.userType === 'ADMIN' ? 'border-violet-300 bg-violet-50' : comment.userType === 'UNIVERSITY' ? 'border-sky-300 bg-sky-50' : 'border-neutral-200'}`}>
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <p className="text-sm font-semibold">@{comment.username}</p>
+                              <div className="flex items-center gap-2"><p className="text-sm font-semibold">@{comment.username}</p><UserBadge userType={comment.userType} /></div>
                               <TimeAgo date={comment.createdAt} />
                             </div>
                             <button

@@ -7,6 +7,7 @@ import Avatar from './Avatar'
 import TimeAgo from './TimeAgo'
 import CommentList from './CommentList'
 import StatusBadge from './StatusBadge'
+import UserBadge from './UserBadge'
 import { createComment, getComments, likePost, unlikePost } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 
@@ -38,6 +39,17 @@ export default function PostCard({ post }) {
     if (!showComments || comments) return
     getComments(post.id).then(setComments).catch(() => setComments([]))
   }, [showComments, comments, post.id])
+
+  useEffect(() => {
+    if (!showComments) return
+    const intervalId = window.setInterval(() => {
+      getComments(post.id).then((next) => {
+        setComments(next)
+        setCommentCount(next.length)
+      }).catch(() => {})
+    }, 10000)
+    return () => window.clearInterval(intervalId)
+  }, [showComments, post.id])
 
   async function handleLike() {
     if (!currentUser) return router.push('/login')
@@ -78,12 +90,13 @@ export default function PostCard({ post }) {
           <Avatar username={post.username} avatarUrl={post.avatarUrl} size="sm" />
         </Link>
         <div className="min-w-0 flex-1">
-          <Link
-            href={`/u/${post.username}`}
-            className="block truncate text-sm font-semibold text-neutral-900 hover:underline"
-          >
-            @{post.username}
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href={`/u/${post.username}`} className="truncate text-sm font-semibold text-neutral-900 hover:underline">
+              @{post.username}
+            </Link>
+            <UserBadge userType={post.userType} />
+            <OnlineDot online={post.authorOnline} />
+          </div>
           <TimeAgo date={post.createdAt} />
         </div>
         {/* status e categoria ao lado do header */}
@@ -196,6 +209,10 @@ export default function PostCard({ post }) {
       </form>
     </article>
   )
+}
+
+function OnlineDot({ online }) {
+  return <span title={online ? 'Online' : 'Offline'} className={`h-2 w-2 shrink-0 rounded-full ${online ? 'bg-green-500' : 'bg-neutral-300'}`} />
 }
 
 function HeartIcon({ filled }) {

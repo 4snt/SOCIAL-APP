@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Avatar from './Avatar'
 import TimeAgo from './TimeAgo'
+import UserBadge from './UserBadge'
 
 export default function CommentList({ comments, limit }) {
   if (!comments?.length) {
@@ -14,7 +15,7 @@ export default function CommentList({ comments, limit }) {
   return (
     <ul className="divide-y divide-neutral-100">
       {visible.map((c) => (
-        <li key={c.id} className="flex gap-3 px-4 py-3">
+        <li key={c.id} className={`flex gap-3 px-4 py-3 ${c.userType === 'ADMIN' ? 'bg-violet-50/80 border-l-4 border-l-violet-400' : c.userType === 'UNIVERSITY' ? 'bg-sky-50/70 border-l-4 border-l-sky-400' : ''}`}>
           <Avatar username={c.username} avatarUrl={c.avatarUrl} size="sm" />
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-2">
@@ -24,6 +25,8 @@ export default function CommentList({ comments, limit }) {
               >
                 @{c.username}
               </Link>
+              <UserBadge userType={c.userType} />
+              <span title={c.authorOnline ? 'Online' : 'Offline'} className={`h-2 w-2 rounded-full ${c.authorOnline ? 'bg-green-500' : 'bg-neutral-300'}`} />
               <TimeAgo date={c.createdAt} />
             </div>
             <p className="break-words text-sm text-neutral-700">{c.content}</p>

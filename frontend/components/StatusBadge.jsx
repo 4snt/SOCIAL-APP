@@ -1,6 +1,7 @@
 'use client'
 
 const STATUS_MAP = {
+  PENDENTE:  { label: 'Pendente',   bg: 'bg-neutral-100', text: 'text-neutral-700', ring: 'ring-neutral-300', dot: 'bg-neutral-500' },
   ABERTA:    { label: 'Aberta',     bg: 'bg-yellow-100', text: 'text-yellow-800', ring: 'ring-yellow-300', dot: 'bg-yellow-500' },
   EM_ANDAMENTO: { label: 'Em andamento', bg: 'bg-blue-100', text: 'text-blue-800', ring: 'ring-blue-300', dot: 'bg-blue-500' },
   CONCLUIDA: { label: 'Concluída',  bg: 'bg-green-100',  text: 'text-green-800',  ring: 'ring-green-300',  dot: 'bg-green-500' },
