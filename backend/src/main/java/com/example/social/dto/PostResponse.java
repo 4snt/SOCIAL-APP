@@ -18,6 +18,10 @@ public record PostResponse(
         boolean likedByMe,
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         LocalDateTime createdAt,
-        String status
+        String status,
+        String categoria,
+        Double latitude,
+        Double longitude,
+        String locationName
 
 ) {}

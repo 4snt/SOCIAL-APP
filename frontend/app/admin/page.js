@@ -8,7 +8,7 @@ import StatusBadge from '../../components/StatusBadge'
 import TimeAgo from '../../components/TimeAgo'
 import UserBadge from '../../components/UserBadge'
 import { useAuthRedirect } from '../../hooks/useAuthRedirect'
-import { deleteComment, deletePost, getAdminActivity, getAdminUsers, getComments, getPosts, updatePostStatus } from '../../lib/api'
+import { deleteComment, deletePost, getAdminActivity, getAdminUsers, getComments, getPosts, updatePostStatus, updateUserRole } from '../../lib/api'
 
 const STATUS_OPTIONS = [
   ['PENDENTE', 'Pendente'],
@@ -16,6 +16,13 @@ const STATUS_OPTIONS = [
   ['EM_ANDAMENTO', 'Em andamento'],
   ['CONCLUIDA', 'Concluída'],
   ['CANCELADA', 'Cancelada'],
+]
+
+const ROLE_OPTIONS = [
+  ['USER', 'Usuário'],
+  ['STUDENT', 'Estudante'],
+  ['UNIVERSITY', 'Institucional / verificado'],
+  ['ADMIN', 'Administrador'],
 ]
 
 export default function AdminPage() {
@@ -30,6 +37,7 @@ export default function AdminPage() {
   const [deletingPostId, setDeletingPostId] = useState(null)
   const [deletingCommentId, setDeletingCommentId] = useState(null)
   const [updatingPostId, setUpdatingPostId] = useState(null)
+  const [updatingUserId, setUpdatingUserId] = useState(null)
 
   useEffect(() => {
     if (authLoading) return
@@ -152,6 +160,19 @@ export default function AdminPage() {
     }
   }
 
+  async function handleRoleChange(userId, role) {
+    setUpdatingUserId(userId)
+    setError('')
+    try {
+      const updated = await updateUserRole(userId, role)
+      setAdminUsers((current) => current.map((item) => item.id === userId ? updated : item))
+    } catch (err) {
+      setError(err.message || 'Não foi possível alterar o cargo do usuário.')
+    } finally {
+      setUpdatingUserId(null)
+    }
+  }
+
   if (authLoading || loading) {
     return <div className="flex items-center justify-center h-[60vh]">Carregando…</div>
   }
@@ -173,7 +194,7 @@ export default function AdminPage() {
 
   return (
     <main className="space-y-5">
-      <section className="card space-y-4 p-6">
+      <section className="card space-y-4 p-4 sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">Painel admin</p>
@@ -226,7 +247,7 @@ export default function AdminPage() {
       {error && <p className="rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">{error}</p>}
 
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="card space-y-4 p-5">
+        <div className="card space-y-4 p-4 sm:p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-base font-semibold text-neutral-900">Usuários e presença</h2>
@@ -239,26 +260,35 @@ export default function AdminPage() {
           ) : (
             <div className="space-y-3">
               {adminUsers.map((adminUser) => (
-                <div key={adminUser.id} className="flex items-center gap-3 rounded-xl border border-neutral-200 p-3">
+                <div key={adminUser.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-neutral-200 p-3 sm:flex-nowrap">
                   <Avatar username={adminUser.username} avatarUrl={adminUser.avatarUrl} size="sm" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold">@{adminUser.username}</p>
                     <UserBadge userType={adminUser.userType} />
                     <p className="text-xs text-neutral-500">{adminUser.userType} · {adminUser.online ? 'online' : 'offline'}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="ml-11 flex w-full items-center justify-between gap-2 sm:ml-0 sm:w-auto sm:flex-col sm:items-end">
                     <p className={`text-xs font-semibold ${adminUser.online ? 'text-green-600' : 'text-neutral-500'}`}>
                       {adminUser.online ? 'Ativo' : 'Inativo'}
                     </p>
                     {adminUser.lastSeenAt && <TimeAgo date={adminUser.lastSeenAt} />}
                   </div>
+                  <select
+                    value={adminUser.userType}
+                    onChange={(event) => handleRoleChange(adminUser.id, event.target.value)}
+                    disabled={updatingUserId === adminUser.id || adminUser.id === user.id}
+                    title={adminUser.id === user.id ? 'Você não pode alterar o próprio cargo' : 'Alterar cargo'}
+                    className="ml-11 w-[calc(100%-2.75rem)] rounded-lg border border-neutral-200 bg-white px-2 py-1.5 text-xs outline-none focus:border-[#6EADBC] disabled:cursor-not-allowed disabled:bg-neutral-100 sm:ml-0 sm:w-44"
+                  >
+                    {ROLE_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                  </select>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        <div className="card space-y-4 p-5">
+        <div className="card space-y-4 p-4 sm:p-5">
           <div>
             <h2 className="text-base font-semibold text-neutral-900">Histórico de ações</h2>
             <p className="text-sm text-neutral-500">Login, logout, criação e remoção ficam registrados aqui.</p>
@@ -300,7 +330,7 @@ export default function AdminPage() {
           {filteredPosts.map((post) => {
             const comments = commentsByPost[post.id] || []
             return (
-              <article key={post.id} className="card space-y-4 p-5">
+              <article key={post.id} className="card space-y-4 p-4 sm:p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex min-w-0 gap-3">
                     <Avatar username={post.username} avatarUrl={post.avatarUrl} size="md" />
@@ -313,14 +343,14 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
                     <label className="text-xs font-medium text-neutral-600" htmlFor={`status-${post.id}`}>Situação</label>
                     <select
                       id={`status-${post.id}`}
                       value={post.status || 'PENDENTE'}
                       onChange={(event) => handleStatusChange(post.id, event.target.value)}
                       disabled={updatingPostId === post.id}
-                      className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#6EADBC] disabled:opacity-60"
+                      className="min-w-0 flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#6EADBC] disabled:opacity-60 sm:flex-none"
                     >
                       {STATUS_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                     </select>

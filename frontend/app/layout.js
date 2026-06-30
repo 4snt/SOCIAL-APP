@@ -17,7 +17,7 @@ export default function RootLayout({ children }) {
       <body className="min-h-screen font-sans" style={{ backgroundColor: '#F1F7D4' }}>
         <Providers>
           <Header />
-          <div className="mx-auto max-w-3xl px-4 py-6">{children}</div>
+          <div className="mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">{children}</div>
         </Providers>
       </body>
     </html>

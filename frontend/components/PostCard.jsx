@@ -85,7 +85,7 @@ export default function PostCard({ post }) {
   return (
     <article className="card overflow-hidden">
       {/* Header do post */}
-      <header className="flex items-center gap-3 px-4 py-3">
+      <header className="flex items-start gap-2 px-3 py-3 sm:items-center sm:gap-3 sm:px-4">
         <Link href={`/u/${post.username}`}>
           <Avatar username={post.username} avatarUrl={post.avatarUrl} size="sm" />
         </Link>
@@ -100,7 +100,7 @@ export default function PostCard({ post }) {
           <TimeAgo date={post.createdAt} />
         </div>
         {/* status e categoria ao lado do header */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex max-w-[45%] flex-wrap items-center justify-end gap-1.5 flex-shrink-0 sm:max-w-none sm:gap-2">
           {post.categoria && (
             <span className="hidden sm:inline-flex category-tag">
               {CATEGORIA_LABEL[post.categoria] ?? post.categoria}
@@ -123,7 +123,7 @@ export default function PostCard({ post }) {
       )}
 
       {/* Corpo do post */}
-      <div className="px-4 pt-3 pb-1">
+      <div className="px-3 pt-3 pb-1 sm:px-4">
         {/* categoria mobile */}
         {post.categoria && (
           <span className="inline-flex sm:hidden category-tag mb-2">
@@ -138,10 +138,20 @@ export default function PostCard({ post }) {
           </Link>
           {post.description}
         </p>
+        {post.latitude != null && post.longitude != null && (
+          <a
+            href={`https://www.openstreetmap.org/?mlat=${post.latitude}&mlon=${post.longitude}#map=17/${post.latitude}/${post.longitude}`}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[#2969BD] hover:underline"
+          >
+            <PinIcon /> {post.locationName || 'Ver localização da demanda'}
+          </a>
+        )}
       </div>
 
       {/* Ações */}
-      <div className="px-4 pb-2 pt-2 flex items-center gap-1">
+      <div className="px-3 pb-2 pt-2 flex items-center gap-1 sm:px-4">
         <button
           onClick={handleLike}
           aria-label={liked ? 'Descurtir' : 'Curtir'}
@@ -182,7 +192,7 @@ export default function PostCard({ post }) {
       {/* Caixa de novo comentário */}
       <form
         onSubmit={handleComment}
-        className="flex items-center gap-2 border-t border-neutral-100 px-4 py-3"
+        className="flex items-center gap-2 border-t border-neutral-100 px-3 py-3 sm:px-4"
       >
         {currentUser && (
           <Avatar username={currentUser.username} avatarUrl={currentUser.avatarUrl} size="xs" />
@@ -213,6 +223,10 @@ export default function PostCard({ post }) {
 
 function OnlineDot({ online }) {
   return <span title={online ? 'Online' : 'Offline'} className={`h-2 w-2 shrink-0 rounded-full ${online ? 'bg-green-500' : 'bg-neutral-300'}`} />
+}
+
+function PinIcon() {
+  return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
 }
 
 function HeartIcon({ filled }) {

@@ -15,10 +15,10 @@ export default function CommentList({ comments, limit }) {
   return (
     <ul className="divide-y divide-neutral-100">
       {visible.map((c) => (
-        <li key={c.id} className={`flex gap-3 px-4 py-3 ${c.userType === 'ADMIN' ? 'bg-violet-50/80 border-l-4 border-l-violet-400' : c.userType === 'UNIVERSITY' ? 'bg-sky-50/70 border-l-4 border-l-sky-400' : ''}`}>
+        <li key={c.id} className={`flex gap-2 px-3 py-3 sm:gap-3 sm:px-4 ${c.userType === 'ADMIN' ? 'bg-violet-50/80 border-l-4 border-l-violet-400' : c.userType === 'UNIVERSITY' ? 'bg-sky-50/70 border-l-4 border-l-sky-400' : ''}`}>
           <Avatar username={c.username} avatarUrl={c.avatarUrl} size="sm" />
           <div className="min-w-0 flex-1">
-            <div className="flex items-baseline gap-2">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <Link
                 href={`/u/${c.username}`}
                 className="text-sm font-semibold text-neutral-900 hover:underline"

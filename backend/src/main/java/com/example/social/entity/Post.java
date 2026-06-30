@@ -30,5 +30,12 @@ public class Post {
     @Column(nullable = false)
     private String status;
 
+    @Column(length = 40)
+    private String categoria;
+    private Double latitude;
+    private Double longitude;
+    @Column(name = "location_name", length = 150)
+    private String locationName;
+
 
 }

@@ -65,6 +65,10 @@ public class PostService {
                 .description(request.description())
                 .createdAt(LocalDateTime.now())
                 .status("PENDENTE")
+                .categoria(request.categoria())
+                .latitude(request.latitude())
+                .longitude(request.longitude())
+                .locationName(request.locationName())
                 .build());
         activityLogService.record(user, "CREATE_POST", "POST", saved.getId(), request.description());
         return toResponse(saved, userId);
@@ -156,7 +160,11 @@ public class PostService {
                 commentRepository.countByPostId(post.getId()),
                 liked,
                 post.getCreatedAt(),
-                post.getStatus()
+                post.getStatus(),
+                post.getCategoria(),
+                post.getLatitude(),
+                post.getLongitude(),
+                post.getLocationName()
         );
     }
 

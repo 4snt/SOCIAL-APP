@@ -27,6 +27,9 @@ export default function PostForm({ onCreated }) {
   const [imagePreview, setImagePreview] = useState('')
   const [description, setDescription] = useState('')
   const [categoria, setCategoria] = useState('')
+  const [location, setLocation] = useState(null)
+  const [locationName, setLocationName] = useState('')
+  const [locating, setLocating] = useState(false)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
@@ -47,6 +50,8 @@ export default function PostForm({ onCreated }) {
     setImagePreview('')
     setDescription('')
     setCategoria('')
+    setLocation(null)
+    setLocationName('')
     setError('')
   }
 
@@ -62,6 +67,11 @@ export default function PostForm({ onCreated }) {
       if (imageFile) formData.append('image', imageFile)
       formData.append('description', description.trim())
       if (categoria) formData.append('categoria', categoria)
+      if (location) {
+        formData.append('latitude', String(location.latitude))
+        formData.append('longitude', String(location.longitude))
+        formData.append('locationName', locationName.trim() || 'Localização da demanda')
+      }
 
       const created = await createPost(formData)
       onCreated?.(created)
@@ -72,6 +82,27 @@ export default function PostForm({ onCreated }) {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  function requestLocation() {
+    if (!navigator.geolocation) {
+      setError('Geolocalização não é suportada neste dispositivo.')
+      return
+    }
+    setLocating(true)
+    setError('')
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setLocation({ latitude: coords.latitude, longitude: coords.longitude })
+        setLocationName((current) => current || 'Localização da demanda')
+        setLocating(false)
+      },
+      () => {
+        setError('Não foi possível obter sua localização. Verifique a permissão do navegador.')
+        setLocating(false)
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
   }
 
   if (authLoading) return <div className="card px-4 py-3 text-sm text-neutral-400">Carregando…</div>
@@ -164,6 +195,23 @@ export default function PostForm({ onCreated }) {
         )}
       </div>
 
+      <div className="space-y-2 rounded-xl border border-neutral-200 p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p className="text-xs font-semibold text-neutral-700">Local da demanda (opcional)</p>
+            <p className="text-[11px] text-neutral-400">A localização só é compartilhada se você autorizar.</p>
+          </div>
+          {location ? (
+            <button type="button" onClick={() => { setLocation(null); setLocationName('') }} className="btn-ghost text-xs text-red-600">Remover</button>
+          ) : (
+            <button type="button" onClick={requestLocation} disabled={locating} className="btn-outline px-3 py-1.5 text-xs">
+              <LocationIcon /> {locating ? 'Localizando…' : 'Usar localização atual'}
+            </button>
+          )}
+        </div>
+        {location && <input className="input-field" value={locationName} onChange={(e) => setLocationName(e.target.value)} maxLength={150} placeholder="Ex.: Campus JK, Bloco 2" />}
+      </div>
+
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <div className="flex items-center justify-end gap-2">
@@ -190,4 +238,8 @@ function CloseIcon({ size = 16 }) {
       <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
     </svg>
   )
+}
+
+function LocationIcon() {
+  return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
 }

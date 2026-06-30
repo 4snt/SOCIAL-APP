@@ -20,14 +20,14 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
+      <div className="mx-auto flex h-14 max-w-3xl items-center justify-between gap-2 px-3 sm:px-4">
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#4A4466] text-sm font-bold text-white shadow-sm transition group-hover:bg-[#3a3450]">
             U
           </span>
-          <div className="flex flex-col leading-none">
+          <div className="hidden flex-col leading-none min-[360px]:flex">
             <span className="text-sm font-bold tracking-tight text-neutral-900">UniVoz</span>
             <span className="text-[10px] text-neutral-400 font-medium tracking-wide uppercase">UFVJM</span>
           </div>

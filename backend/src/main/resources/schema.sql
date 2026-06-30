@@ -12,6 +12,10 @@ ALTER TABLE users ALTER COLUMN dtype SET NOT NULL;
 
 -- Adiciona coluna status na tabela posts
 ALTER TABLE posts ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'PENDENTE';
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS categoria VARCHAR(40);
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION;
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS location_name VARCHAR(150);
 
 -- Migração para suportar upload de arquivos em multipart/form-data
 ALTER TABLE posts DROP COLUMN IF EXISTS image_url;

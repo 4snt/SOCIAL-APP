@@ -4,6 +4,7 @@ import com.example.social.dto.ActivityLogResponse;
 import com.example.social.dto.UserResponse;
 import com.example.social.dto.PostResponse;
 import com.example.social.dto.UpdatePostStatusRequest;
+import com.example.social.dto.UpdateUserRoleRequest;
 import com.example.social.entity.User;
 import com.example.social.service.ActivityLogService;
 import com.example.social.service.AuthService;
@@ -50,6 +51,16 @@ public class AdminDashboardController {
         return userService.findAll().stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    @PutMapping("/users/{userId}/role")
+    public UserResponse updateUserRole(@PathVariable Long userId, @RequestBody UpdateUserRoleRequest request) {
+        User admin = authService.requireAdmin();
+        User updated = userService.updateRole(userId, request.role(), admin.getId());
+        String role = userService.resolveUserType(updated);
+        notificationService.notify(updated, admin, "ROLE_CHANGED", "Seu cargo na UniVoz foi alterado para " + role, null);
+        activityLogService.record(admin, "UPDATE_USER_ROLE", "USER", userId, "Cargo de @" + updated.getUsername() + " alterado para " + role);
+        return toResponse(updated);
     }
 
     @GetMapping("/activity")

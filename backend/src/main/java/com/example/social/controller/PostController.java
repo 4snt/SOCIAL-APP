@@ -77,9 +77,13 @@ public class PostController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public PostResponse create(
             @RequestParam(name = "image", required = false) MultipartFile image,
-            @RequestParam(name = "description") String description
+            @RequestParam(name = "description") String description,
+            @RequestParam(name = "categoria", required = false) String categoria,
+            @RequestParam(name = "latitude", required = false) Double latitude,
+            @RequestParam(name = "longitude", required = false) Double longitude,
+            @RequestParam(name = "locationName", required = false) String locationName
     ) throws IOException {
-        CreatePostRequest request = new CreatePostRequest(image, description);
+        CreatePostRequest request = new CreatePostRequest(image, description, categoria, latitude, longitude, locationName);
         Long userId = authService.requireCurrentUser().getId();
         return postService.create(request, userId);
     }

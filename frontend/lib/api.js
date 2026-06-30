@@ -123,6 +123,13 @@ export async function updatePostStatus(postId, status) {
   })
 }
 
+export async function updateUserRole(userId, role) {
+  return request(`/admin/users/${userId}/role`, {
+    method: 'PUT',
+    body: JSON.stringify({ role }),
+  })
+}
+
 export async function getNotifications() {
   return request('/notifications')
 }

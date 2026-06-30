@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService implements UserDetailsService {
+
+    private static final Set<String> ALLOWED_ROLES = Set.of("USER", "STUDENT", "UNIVERSITY", "ADMIN");
 
     private final UserRepository userRepository;
 
@@ -93,5 +96,24 @@ public class UserService implements UserDetailsService {
             return false;
         }
         return user.getLastSeenAt().isAfter(LocalDateTime.now().minusMinutes(5));
+    }
+
+    @Transactional
+    public User updateRole(Long userId, String requestedRole, Long currentAdminId) {
+        String role = requestedRole == null ? "" : requestedRole.trim().toUpperCase();
+        if (!ALLOWED_ROLES.contains(role)) {
+            throw new IllegalArgumentException("Cargo de usuário inválido");
+        }
+        User target = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        if (userId.equals(currentAdminId) && !"ADMIN".equals(role)) {
+            throw new IllegalArgumentException("Você não pode remover o próprio acesso de administrador");
+        }
+        if (role.equals(resolveUserType(target))) {
+            return target;
+        }
+        userRepository.updateRole(userId, role);
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado após atualização"));
     }
 }

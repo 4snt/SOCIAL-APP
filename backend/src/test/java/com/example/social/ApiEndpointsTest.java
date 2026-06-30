@@ -2,6 +2,7 @@ package com.example.social;
 
 import com.example.social.entity.Post;
 import com.example.social.entity.User;
+import com.example.social.entity.AdminUser;
 import com.example.social.repository.LikeRepository;
 import com.example.social.repository.PostRepository;
 import com.example.social.repository.UserRepository;
@@ -242,5 +243,27 @@ class ApiEndpointsTest {
         .then()
                 .statusCode(200)
                 .body("likes", equalTo(0));
+    }
+
+    @Test
+    void shouldAllowAdminToPromoteUser() {
+        userRepository.save(AdminUser.builder()
+                .username("admin")
+                .email("admin@email.com")
+                .password(passwordEncoder.encode("123"))
+                .adminName("Administrador")
+                .build());
+        String session = loginSession("admin@email.com", "123");
+
+        given()
+                .cookie("JSESSIONID", session)
+                .contentType(ContentType.JSON)
+                .body(Map.of("role", "ADMIN"))
+        .when()
+                .put("/api/admin/users/{userId}/role", maria.getId())
+        .then()
+                .statusCode(200)
+                .body("id", equalTo(maria.getId().intValue()))
+                .body("userType", equalTo("ADMIN"));
     }
 }
