@@ -43,7 +43,7 @@ No Coolify, configure as seguintes variáveis de ambiente pelo painel (as portas
 | `POSTGRES_USER` | Usuário do banco | `admin` |
 | `POSTGRES_PASSWORD` | Senha do banco | `<senha segura>` |
 | `SPRING_DATASOURCE_URL` | URL JDBC interna | `jdbc:postgresql://db:5432/socialdb` |
-| `CORS_ALLOWED_ORIGINS` | Domínios permitidos pelo CORS | `https://seu-dominio.com` |
+| `CORS_ALLOWED_ORIGINS` | Domínios permitidos pelo CORS | `https://seu-dominio.com,https://www.seu-dominio.com` |
 | `NEXT_PUBLIC_API_URL` | URL interna do backend (server-side) | `http://backend:8080` |
 
 ## Estrutura
