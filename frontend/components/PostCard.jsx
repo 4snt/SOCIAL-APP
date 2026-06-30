@@ -75,7 +75,7 @@ export default function PostCard({ post }) {
       {/* Header do post */}
       <header className="flex items-center gap-3 px-4 py-3">
         <Link href={`/u/${post.username}`}>
-          <Avatar username={post.username} avatarUrl={post.avatarUrl} />
+          <Avatar username={post.username} avatarUrl={post.avatarUrl} size="sm" />
         </Link>
         <div className="min-w-0 flex-1">
           <Link
@@ -188,7 +188,7 @@ export default function PostCard({ post }) {
           <button
             type="submit"
             disabled={submitting}
-            className="text-sm font-semibold text-brand-600 hover:text-brand-700 disabled:opacity-40"
+            className="text-sm font-semibold text-[#4A4466] hover:text-[#3a3450] disabled:opacity-40"
           >
             Publicar
           </button>

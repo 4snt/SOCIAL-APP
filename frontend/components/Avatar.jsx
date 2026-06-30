@@ -1,6 +1,6 @@
 'use client'
 
-const SIZE = { sm: 'h-8 w-8 text-xs', md: 'h-10 w-10 text-sm', lg: 'h-20 w-20 text-2xl' }
+const SIZE = { xs: 'h-7 w-7 text-xs', sm: 'h-8 w-8 text-xs', md: 'h-10 w-10 text-sm', lg: 'h-20 w-20 text-2xl' }
 
 export default function Avatar({ username, avatarUrl, size = 'md', className = '' }) {
   const fallback = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(username || 'guest')}`

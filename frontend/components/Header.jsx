@@ -23,7 +23,7 @@ export default function Header() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-sm font-bold text-white shadow-sm transition group-hover:bg-brand-700">
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#4A4466] text-sm font-bold text-white shadow-sm transition group-hover:bg-[#3a3450]">
             U
           </span>
           <div className="flex flex-col leading-none">
