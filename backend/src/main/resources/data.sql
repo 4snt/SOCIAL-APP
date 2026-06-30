@@ -27,11 +27,7 @@ ON CONFLICT (id) DO UPDATE SET
     last_seen_at    = EXCLUDED.last_seen_at;
 
 -- ----------------------------- POSTS -----------------------------
--- Limpa o feed antigo e recria posts orientados a demandas da universidade.
-DELETE FROM likes;
-DELETE FROM comments;
-DELETE FROM posts;
-
+-- Seed idempotente orientado a demandas da universidade.
 INSERT INTO posts (id, user_id, description, created_at, status) VALUES
 (1,  3, 'Pedimos extensão do horário da biblioteca em semana de provas. Isso faz diferença real.', NOW() - INTERVAL '2 hours', 'CONCLUIDA'),
 (2,  4, 'Sugestão para a Univoz: mais vagas no RU e opção de almoço em horários alternativos.', NOW() - INTERVAL '5 hours', 'CONCLUIDA'),
