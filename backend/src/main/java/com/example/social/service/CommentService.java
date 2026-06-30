@@ -48,10 +48,10 @@ public class CommentService {
     }
 
     @Transactional
-    public void delete(Long commentId, Long userId) {
+    public void delete(Long commentId, Long userId, boolean isAdmin) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comentário não encontrado"));
-        if (!comment.getUser().getId().equals(userId)) {
+        if (!isAdmin && !comment.getUser().getId().equals(userId)) {
             throw new RuntimeException("Você não pode apagar este comentário");
         }
         commentRepository.delete(comment);

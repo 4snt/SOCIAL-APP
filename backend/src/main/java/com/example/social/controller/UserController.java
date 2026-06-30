@@ -45,6 +45,13 @@ public class UserController {
     }
 
     private UserResponse toResponse(User u) {
-        return new UserResponse(u.getId(), u.getUsername(), u.getEmail(), u.getAvatarUrl(), u.getBio());
+        return new UserResponse(
+                u.getId(),
+                u.getUsername(),
+                u.getEmail(),
+                u.getAvatarUrl(),
+                u.getBio(),
+                userService.resolveUserType(u)
+        );
     }
 }

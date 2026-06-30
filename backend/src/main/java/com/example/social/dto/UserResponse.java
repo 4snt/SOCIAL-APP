@@ -5,5 +5,6 @@ public record UserResponse(
         String username,
         String email,
         String avatarUrl,
-        String bio
+        String bio,
+        String userType
 ) {}

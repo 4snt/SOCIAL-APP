@@ -9,6 +9,7 @@ import com.example.social.repository.LikeRepository;
 import com.example.social.repository.PostRepository;
 import com.example.social.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -86,6 +87,19 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post não encontrado"));
         return toResponse(post, currentUserId);
+    }
+
+    @Transactional
+    public void delete(Long postId, Long currentUserId, boolean isAdmin) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post não encontrado"));
+        if (!isAdmin && !post.getUser().getId().equals(currentUserId)) {
+            throw new RuntimeException("Você não pode apagar este post");
+        }
+
+        likeRepository.deleteByPostId(postId);
+        commentRepository.deleteByPostId(postId);
+        postRepository.delete(post);
     }
 
     public byte[] getImageData(Long postId) {

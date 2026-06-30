@@ -1,7 +1,9 @@
 package com.example.social.service;
 
 import com.example.social.entity.AdminUser;
+import com.example.social.entity.StudentsUser;
 import com.example.social.entity.User;
+import com.example.social.entity.UniversityUser;
 import com.example.social.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -58,5 +60,18 @@ public class UserService implements UserDetailsService {
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public String resolveUserType(User user) {
+        if (user instanceof AdminUser) {
+            return "ADMIN";
+        }
+        if (user instanceof StudentsUser) {
+            return "STUDENT";
+        }
+        if (user instanceof UniversityUser) {
+            return "UNIVERSITY";
+        }
+        return "USER";
     }
 }

@@ -3,6 +3,7 @@ package com.example.social.controller;
 import com.example.social.dto.CreatePostRequest;
 import com.example.social.dto.PostResponse;
 import com.example.social.entity.Post;
+import com.example.social.entity.User;
 import com.example.social.service.AuthService;
 import com.example.social.service.PostService;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -77,5 +79,12 @@ public class PostController {
         CreatePostRequest request = new CreatePostRequest(image, description);
         Long userId = authService.requireCurrentUser().getId();
         return postService.create(request, userId);
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> delete(@PathVariable Long postId) {
+        User currentUser = authService.requireCurrentUser();
+        postService.delete(postId, currentUser.getId(), currentUser instanceof com.example.social.entity.AdminUser);
+        return ResponseEntity.noContent().build();
     }
 }

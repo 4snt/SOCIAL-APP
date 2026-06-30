@@ -2,6 +2,7 @@ package com.example.social.controller;
 
 import com.example.social.dto.CommentResponse;
 import com.example.social.dto.CreateCommentRequest;
+import com.example.social.entity.User;
 import com.example.social.service.AuthService;
 import com.example.social.service.CommentService;
 import java.util.List;
@@ -37,7 +38,7 @@ public class CommentController {
 
     @DeleteMapping("/comments/{commentId}")
     public void delete(@PathVariable Long commentId) {
-        Long userId = authService.requireCurrentUser().getId();
-        commentService.delete(commentId, userId);
+        User currentUser = authService.requireCurrentUser();
+        commentService.delete(commentId, currentUser.getId(), currentUser instanceof com.example.social.entity.AdminUser);
     }
 }

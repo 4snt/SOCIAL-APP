@@ -53,6 +53,10 @@ export async function createPost(formData) {
   return request(`/posts`, { method: 'POST', body: formData })
 }
 
+export async function deletePost(postId) {
+  return request(`/posts/${postId}`, { method: 'DELETE' })
+}
+
 // -------- LIKES --------
 export async function likePost(postId) {
   return request(`/posts/${postId}/like`, { method: 'POST' })
